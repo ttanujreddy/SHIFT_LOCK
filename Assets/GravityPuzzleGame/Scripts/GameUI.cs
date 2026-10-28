@@ -28,7 +28,7 @@ public class GameUI : MonoBehaviour
 
 	void CreateShiftCounter()
 	{
-		Canvas canvas = FindObjectOfType<Canvas>();
+		Canvas canvas = FindAnyObjectByType<Canvas>();
 		if (canvas == null)
 		{
 			Debug.LogWarning("Cannot display the gravity-shift counter because the Game scene has no Canvas.");
@@ -51,7 +51,7 @@ public class GameUI : MonoBehaviour
 		shiftCounterText.fontStyle = FontStyles.Bold;
 		shiftCounterText.color = new Color(0.08f, 0.08f, 0.08f, 1f);
 		shiftCounterText.alignment = TextAlignmentOptions.TopLeft;
-		shiftCounterText.enableWordWrapping = false;
+		shiftCounterText.textWrappingMode = TextWrappingModes.NoWrap;
 		shiftCounterText.raycastTarget = false;
 	}
 
