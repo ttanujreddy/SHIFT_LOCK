@@ -18,6 +18,8 @@ public static class ShiftLockTheme
     public static readonly Color Amber = new Color(1f, 0.63f, 0.16f, 1f);
 
     static readonly Dictionary<string, Sprite> spriteCache = new Dictionary<string, Sprite>();
+    static float activeArtInset = 0.10f;
+    static float ActiveArtSpan { get { return 1f - (activeArtInset * 2f); } }
 
     public static void ApplyCamera(Camera camera)
     {
@@ -44,9 +46,27 @@ public static class ShiftLockTheme
         int width = Mathf.Clamp(Mathf.RoundToInt(referenceSprite.rect.width), 16, 96);
         int height = Mathf.Clamp(Mathf.RoundToInt(referenceSprite.rect.height), 16, 96);
         float ppu = referenceSprite.pixelsPerUnit > 0 ? referenceSprite.pixelsPerUnit : 16f;
-        string cacheKey = tileId + ":" + width + "x" + height + ":" + ppu;
+        Vector2 normalizedPivot = new Vector2(
+            referenceSprite.pivot.x / Mathf.Max(1f, referenceSprite.rect.width),
+            referenceSprite.pivot.y / Mathf.Max(1f, referenceSprite.rect.height));
+        string cacheKey = tileId + ":" + width + "x" + height + ":" + ppu + ":" +
+                          normalizedPivot.x + ":" + normalizedPivot.y;
         Sprite cached;
         if (spriteCache.TryGetValue(cacheKey, out cached)) return cached;
+
+        // Original art uses per-sprite pivots and often leaves transparent padding. Preserve
+        // the pivot, and size each generated object type to sit safely inside its grid cell.
+        switch (tileId)
+        {
+            case 0: activeArtInset = 0.16f; break; // Blocks: retain a strong tile silhouette.
+            case 1: activeArtInset = 0.22f; break; // Player: avoid covering neighboring tiles.
+            case 2: activeArtInset = 0.20f; break; // Hazards: clearly visible but cell-contained.
+            case 3: activeArtInset = 0.24f; break; // Flag/exit has an off-center original pivot.
+            case 4: activeArtInset = 0.20f; break; // Gravity switch.
+            case 5: activeArtInset = 0.18f; break; // Door.
+            case 6: activeArtInset = 0.20f; break; // Activated switch.
+            default: activeArtInset = 0.16f; break;
+        }
 
         Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
         texture.name = "SHIFT_LOCK_Tile_" + tileId;
@@ -67,7 +87,7 @@ public static class ShiftLockTheme
         }
 
         texture.Apply(false, false);
-        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), ppu);
+        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, width, height), normalizedPivot, ppu);
         sprite.name = "SHIFT_LOCK_Tile_" + tileId;
         spriteCache[cacheKey] = sprite;
         return sprite;
@@ -143,14 +163,10 @@ public static class ShiftLockTheme
         FillRect(t, 0.45f, 0.37f, 0.55f, 0.63f, SteelLight);
     }
 
-    // Keep generated art inside the original visible tile footprint; template sprites had
-    // transparent padding that the procedural sprites must preserve.
-    const float ArtInset = 0.10f;
-    const float ArtSpan = 1f - (ArtInset * 2f);
-
+    // Scale drawing coordinates into the selected tile type's safe visible footprint.
     static float Inset(float value)
     {
-        return ArtInset + value * ArtSpan;
+        return activeArtInset + value * ActiveArtSpan;
     }
 
     static void FillRect(Texture2D t, float left, float bottom, float right, float top, Color color)
@@ -168,8 +184,8 @@ public static class ShiftLockTheme
     {
         float cx = Inset(centerX);
         float cy = Inset(centerY);
-        float rx = radius * ArtSpan;
-        float ry = radius * ArtSpan;
+        float rx = radius * ActiveArtSpan;
+        float ry = radius * ActiveArtSpan;
         for (int y = 0; y < t.height; y++)
         {
             float py = (y + 0.5f) / t.height;
@@ -220,7 +236,7 @@ public static class ShiftLockTheme
     {
         if (button == null) return;
         Image image = button.GetComponent<Image>();
-        if (image != null) image.color = Panel;
+        if (image != null) image.color = Color.white; // ColorTint applies the ColorBlock; avoid multiplying two dark colors.
 
         ColorBlock colors = button.colors;
         colors.normalColor = Panel;
@@ -235,8 +251,8 @@ public static class ShiftLockTheme
         // Give buttons a visible silhouette against the near-black page background.
         Outline outline = button.GetComponent<Outline>();
         if (outline == null) outline = button.gameObject.AddComponent<Outline>();
-        outline.effectColor = ButtonBorder;
-        outline.effectDistance = new Vector2(1.5f, -1.5f);
+        outline.effectColor = Accent;
+        outline.effectDistance = new Vector2(2.5f, -2.5f);
         outline.useGraphicAlpha = true;
 
         TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
@@ -273,6 +289,31 @@ public static class ShiftLockTheme
             {
                 StyleText(label, Text, true);
             }
+        }
+
+        // The template's chamber heading is a legacy UI.Text rather than TextMeshPro,
+        // so style it explicitly too. This is why it stayed dark after the TMP-only pass.
+        foreach (UnityEngine.UI.Text label in root.GetComponentsInChildren<UnityEngine.UI.Text>(true))
+        {
+            if (label == null) continue;
+            string original = label.text;
+            if (original.IndexOf("LEVEL SELECT", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                original.IndexOf("CHAMBER SELECT", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                label.text = "CHAMBER SELECT";
+            else if (original.IndexOf("GRAVITY PUZZLE GAME", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                label.text = "SHIFT//LOCK";
+
+            bool heading = label.text.IndexOf("CHAMBER SELECT", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                           label.text.IndexOf("SHIFT//LOCK", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            label.color = heading ? Accent : Text;
+            label.fontStyle = FontStyle.Bold;
+            if (heading) label.fontSize = Mathf.Max(label.fontSize, 30);
+            label.canvasRenderer.SetAlpha(1f);
+
+            Outline textOutline = label.GetComponent<Outline>();
+            if (textOutline == null) textOutline = label.gameObject.AddComponent<Outline>();
+            textOutline.effectColor = new Color(0f, 0f, 0f, 1f);
+            textOutline.effectDistance = new Vector2(1f, -1f);
         }
 
         foreach (Button button in root.GetComponentsInChildren<Button>(true))
