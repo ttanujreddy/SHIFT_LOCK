@@ -28,10 +28,12 @@ public class GameUI : MonoBehaviour
 
 	void CreateShiftCounter()
 	{
-		Canvas canvas = FindAnyObjectByType<Canvas>();
+		// Anchor the counter to the same canvas as the existing level label.
+		// FindAnyObjectByType can select a different canvas with a different scale.
+		Canvas canvas = levelText != null ? levelText.GetComponentInParent<Canvas>() : null;
 		if (canvas == null)
 		{
-			Debug.LogWarning("Cannot display the gravity-shift counter because the Game scene has no Canvas.");
+			Debug.LogWarning("Cannot display the gravity-shift counter because levelText is not under a Canvas.");
 			return;
 		}
 

@@ -7,6 +7,8 @@ using TMPro;
 
 public class MenuUI : MonoBehaviour 
 {
+	// The original template occupies Level0-Level9. The custom SHIFT//LOCK campaign starts at Level10.
+	const int firstCustomLevelId = 10;
 	//Pages
 	public GameObject menuPage;		//The page containing the menu.
 	public GameObject levelsPage;	//The page containing the levels.
@@ -17,11 +19,7 @@ public class MenuUI : MonoBehaviour
 
 	void Start ()
 	{
-		//If level 0 is locked, set it to be unlocked.
-		if(PlayerPrefs.GetInt("Level0") == 0)
-			PlayerPrefs.SetInt("Level0", 1);
-
-		//Load the level buttons.
+		// Show only the original SHIFT//LOCK chambers. Template levels remain available in the project for reference.
 		LoadLevels();
 	}
 
@@ -44,22 +42,25 @@ public class MenuUI : MonoBehaviour
 	//it calls the PlayLevel function, which starts the level.
 	public void LoadLevels ()
 	{
-		for(int x = 0; x < Resources.LoadAll<TextAsset>("Levels").Length; x++){
+		// Count consecutive custom levels, rather than displaying the ten template levels first.
+		int customLevelCount = 0;
+		while (Resources.Load<TextAsset>("Levels/Level" + (firstCustomLevelId + customLevelCount)) != null)
+			customLevelCount++;
+
+		for (int index = 0; index < customLevelCount; index++)
+		{
+			int levelId = firstCustomLevelId + index;
 			GameObject level = Instantiate(levelButton, levelHolder.transform, false);
-			level.transform.Find("Text").GetComponent<TMP_Text>().text = "LEVEL " + x;
-			int e = x;
-			level.transform.GetComponent<Button>().onClick.AddListener(new UnityEngine.Events.UnityAction(delegate {PlayLevel(e);}));
+			level.transform.Find("Text").GetComponent<TMP_Text>().text = "LEVEL " + (index + 1);
+
+			Button button = level.GetComponent<Button>();
+			button.onClick.AddListener(new UnityEngine.Events.UnityAction(delegate { PlayLevel(levelId); }));
+			button.interactable = true; // All custom chambers are directly selectable for evaluation.
+
 			level.transform.localScale = Vector3.one;
-
-			int l = PlayerPrefs.GetInt("Level" + x);
-
-			if(l == 0){
-				level.transform.GetComponent<Image>().color = new Color(0.5f, 0.0f, 0.0f, 1.0f);
-				level.transform.GetComponent<Button>().interactable = false;
-			}
-			if(l == 2){
-				level.transform.GetComponent<Image>().color = new Color(0.0f, 0.5f, 0.0f, 1.0f);
-			}
+			int completion = PlayerPrefs.GetInt("Level" + levelId);
+			if (completion == 2)
+				level.GetComponent<Image>().color = new Color(0f, 0.5f, 0f, 1f);
 		}
 	}
 
