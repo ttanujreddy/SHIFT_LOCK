@@ -14,6 +14,47 @@ public class GameUI : MonoBehaviour
 
 	public GameObject compass;			//The game object that is used as a compass to tell the player what direction they are.
 
+	private TMP_Text shiftCounterText;
+
+	// Creates a HUD label at runtime so the existing template scene needs no manual re-wiring.
+	public void UpdateShiftCounter(int remaining, int total)
+	{
+		if (shiftCounterText == null)
+			CreateShiftCounter();
+
+		if (shiftCounterText != null)
+			shiftCounterText.text = "SHIFTS LEFT: " + remaining + " / " + total;
+	}
+
+	void CreateShiftCounter()
+	{
+		Canvas canvas = FindObjectOfType<Canvas>();
+		if (canvas == null)
+		{
+			Debug.LogWarning("Cannot display the gravity-shift counter because the Game scene has no Canvas.");
+			return;
+		}
+
+		GameObject counterObject = new GameObject("ShiftCounter", typeof(RectTransform), typeof(TextMeshProUGUI));
+		RectTransform rect = counterObject.GetComponent<RectTransform>();
+		rect.SetParent(canvas.transform, false);
+		rect.anchorMin = new Vector2(0, 1);
+		rect.anchorMax = new Vector2(0, 1);
+		rect.pivot = new Vector2(0, 1);
+		rect.anchoredPosition = new Vector2(18, -54);
+		rect.sizeDelta = new Vector2(300, 42);
+
+		shiftCounterText = counterObject.GetComponent<TextMeshProUGUI>();
+		if (TMP_Settings.defaultFontAsset != null)
+			shiftCounterText.font = TMP_Settings.defaultFontAsset;
+		shiftCounterText.fontSize = 24;
+		shiftCounterText.fontStyle = FontStyles.Bold;
+		shiftCounterText.color = new Color(0.08f, 0.08f, 0.08f, 1f);
+		shiftCounterText.alignment = TextAlignmentOptions.TopLeft;
+		shiftCounterText.enableWordWrapping = false;
+		shiftCounterText.raycastTarget = false;
+	}
+
 	//Called when the player wins the game.
 	public void SetWinScreen ()
 	{

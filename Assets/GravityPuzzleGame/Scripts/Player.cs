@@ -21,10 +21,12 @@ public class Player : MonoBehaviour
 			Inputs();
 		}
 
-		//If the player presses the ESCAPE key, quit to the menu.
-		if(Input.GetKeyDown(KeyCode.Escape)){
+		// R retries the current chamber; Escape returns to the menu.
+		if (Input.GetKeyDown(KeyCode.R))
+			SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+		if (Input.GetKeyDown(KeyCode.Escape))
 			SceneManager.LoadScene(0);
-		}
 	}
 
 	//Manages the key press inputs. 
@@ -115,19 +117,19 @@ public class Player : MonoBehaviour
 		if(dir == "up"){
 			switch(manager.gravityDirection){
 				case GravityDirection.North:{
-					manager.FlipGravity(GravityDirection.South);
+					manager.TryFlipGravity(GravityDirection.South);
 					break;
 				}
 				case GravityDirection.South:{
-					manager.FlipGravity(GravityDirection.North);
+					manager.TryFlipGravity(GravityDirection.North);
 					break;
 				}
 				case GravityDirection.East:{
-					manager.FlipGravity(GravityDirection.West);
+					manager.TryFlipGravity(GravityDirection.West);
 					break;
 				}
 				case GravityDirection.West:{
-					manager.FlipGravity(GravityDirection.East);
+					manager.TryFlipGravity(GravityDirection.East);
 					break;
 				}
 			}
@@ -138,19 +140,19 @@ public class Player : MonoBehaviour
 		if(dir == "left"){
 			switch(manager.gravityDirection){
 				case GravityDirection.North:{
-					manager.FlipGravity(GravityDirection.East);
+					manager.TryFlipGravity(GravityDirection.East);
 					break;
 				}
 				case GravityDirection.South:{
-					manager.FlipGravity(GravityDirection.West);
+					manager.TryFlipGravity(GravityDirection.West);
 					break;
 				}
 				case GravityDirection.East:{
-					manager.FlipGravity(GravityDirection.South);
+					manager.TryFlipGravity(GravityDirection.South);
 					break;
 				}
 				case GravityDirection.West:{
-					manager.FlipGravity(GravityDirection.North);
+					manager.TryFlipGravity(GravityDirection.North);
 					break;
 				}
 			}
@@ -159,19 +161,19 @@ public class Player : MonoBehaviour
 		if(dir == "right"){
 			switch(manager.gravityDirection){
 				case GravityDirection.North:{
-					manager.FlipGravity(GravityDirection.West);
+					manager.TryFlipGravity(GravityDirection.West);
 					break;
 				}
 				case GravityDirection.South:{
-					manager.FlipGravity(GravityDirection.East);
+					manager.TryFlipGravity(GravityDirection.East);
 					break;
 				}
 				case GravityDirection.East:{
-					manager.FlipGravity(GravityDirection.North);
+					manager.TryFlipGravity(GravityDirection.North);
 					break;
 				}
 				case GravityDirection.West:{
-					manager.FlipGravity(GravityDirection.South);
+					manager.TryFlipGravity(GravityDirection.South);
 					break;
 				}
 			}
@@ -241,6 +243,7 @@ public class Player : MonoBehaviour
 
 		transform.position = manager.playerSpawn;
 		manager.FlipGravity(GravityDirection.North);
+		manager.ResetGravityShiftBudget();
 
 		fallingInSpikes = false;
 		falling = false;

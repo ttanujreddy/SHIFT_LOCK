@@ -7,6 +7,10 @@ public class GameManager : MonoBehaviour
 	//Level
 	public int levelId;									//The current level.
 	public int levels;									//The total amount of levels there are.
+
+	[Header("Gravity Shift Budget")]
+	[Min(0)] public int maxGravityShifts = 5;
+	[System.NonSerialized] public int gravityShiftsRemaining;
 	[System.NonSerialized]
 	public Tile[,] grid;								//Runtime-only tile grid.
 	public Vector2 playerSpawn;							//The position where the player will spawn.
@@ -22,9 +26,11 @@ public class GameManager : MonoBehaviour
 		//When we load in, we set levelId to be the level that the player selected in the menu.
 		levelId = PlayerPrefs.GetInt("SelectedLevel");
 
+		// Set the UI reference before loading so the level can update its HUD.
+		ui.manager = this;
+
 		//Then we load the level.
 		LoadLevel();
-		ui.manager = this;
 	}
 
 	//This function loads the level. The level it loads is based on what the levelId is.
@@ -38,6 +44,7 @@ public class GameManager : MonoBehaviour
 			return;
 		}
 
+		ResetGravityShiftBudget();
 		grid = new Tile[20, 20];
 		string[] lines = levelAsset.text.Split('\n');
 		ui.levelText.text = "LEVEL " + levelId;
@@ -135,6 +142,31 @@ public class GameManager : MonoBehaviour
 
 		cameraController.SetTarget(this);
 		ui.SetTutorial();
+	}
+
+	// Starts each chamber/retry with its full gravity-shift allowance.
+	public void ResetGravityShiftBudget()
+	{
+		gravityShiftsRemaining = Mathf.Max(0, maxGravityShifts);
+		if (ui != null)
+			ui.UpdateShiftCounter(gravityShiftsRemaining, maxGravityShifts);
+	}
+
+	// Player-initiated gravity changes consume a shift. System resets use FlipGravity directly.
+	public bool TryFlipGravity(GravityDirection dir)
+	{
+		if (dir == gravityDirection || gravityShiftsRemaining <= 0)
+		{
+			if (ui != null)
+				ui.UpdateShiftCounter(gravityShiftsRemaining, maxGravityShifts);
+			return false;
+		}
+
+		gravityShiftsRemaining--;
+		FlipGravity(dir);
+		if (ui != null)
+			ui.UpdateShiftCounter(gravityShiftsRemaining, maxGravityShifts);
+		return true;
 	}
 
 	//Can the player move in the direction they want to?
