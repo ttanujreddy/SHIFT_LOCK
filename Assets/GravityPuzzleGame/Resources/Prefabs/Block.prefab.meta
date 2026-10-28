@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 835c1bace56bf054bb2f42e60572c280
+timeCreated: 1466563930
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Resources/Prefabs/Block.prefab
+  uploadId: 770570

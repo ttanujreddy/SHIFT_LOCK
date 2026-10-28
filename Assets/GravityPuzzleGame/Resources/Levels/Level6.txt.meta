@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a8577545bfa3d474cb796d47538413c6
+timeCreated: 1466647668
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Resources/Levels/Level6.txt
+  uploadId: 770570

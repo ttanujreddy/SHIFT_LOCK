@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 720a41fd831a4a14589966d4d82819ff
+timeCreated: 1466562002
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Scenes/Game.unity
+  uploadId: 770570

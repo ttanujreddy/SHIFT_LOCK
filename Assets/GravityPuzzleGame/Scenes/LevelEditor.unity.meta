@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3c94f45980c60444caba2389a06a7273
+timeCreated: 1466584444
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Scenes/LevelEditor.unity
+  uploadId: 770570

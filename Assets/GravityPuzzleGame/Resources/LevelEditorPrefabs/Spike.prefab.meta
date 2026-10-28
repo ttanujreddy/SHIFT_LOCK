@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 019dbc2881da2db4d8bf205d39c2feae
+timeCreated: 1466585849
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Resources/LevelEditorPrefabs/Spike.prefab
+  uploadId: 770570

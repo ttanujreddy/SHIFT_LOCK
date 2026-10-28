@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b18ce984ba3c7a742adf006ed73abe13
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4890085278179872738
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Scenes/MenuSettings.lighting
+  uploadId: 770570

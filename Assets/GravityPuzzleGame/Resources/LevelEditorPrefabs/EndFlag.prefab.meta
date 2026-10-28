@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 27960c379e67ec84f9a5c68c7b859425
+timeCreated: 1466585855
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Resources/LevelEditorPrefabs/EndFlag.prefab
+  uploadId: 770570

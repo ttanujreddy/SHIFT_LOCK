@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 93d1cfb1ba83fbc4bbd8beb35298745c
+timeCreated: 1466585854
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Resources/LevelEditorPrefabs/Block.prefab
+  uploadId: 770570

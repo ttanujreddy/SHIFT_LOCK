@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 21ed4bd6eb4570740b73ec319dfbc80e
+timeCreated: 1466563927
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Resources/Prefabs/Player.prefab
+  uploadId: 770570

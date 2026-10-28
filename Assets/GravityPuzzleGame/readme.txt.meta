@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 75ef408a5ee64f641a4fd6b77c0bf1cd
+timeCreated: 1484225354
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/readme.txt
+  uploadId: 770570

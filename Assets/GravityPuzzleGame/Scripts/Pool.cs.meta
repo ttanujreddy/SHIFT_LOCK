@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 1479e610b1fb2c542b7dde38e8407c6d
+timeCreated: 1466564046
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Scripts/Pool.cs
+  uploadId: 770570

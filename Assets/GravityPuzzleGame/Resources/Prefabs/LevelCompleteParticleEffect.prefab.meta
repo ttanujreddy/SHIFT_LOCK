@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 17405f42dda2ba248bf1a0880a1ca3e2
+timeCreated: 1467094221
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Resources/Prefabs/LevelCompleteParticleEffect.prefab
+  uploadId: 770570

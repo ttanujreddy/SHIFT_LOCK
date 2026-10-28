@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 19546bbafe29065438a2083cf446c364
+timeCreated: 1466587088
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Resources/MenuPrefabs/LevelButton.prefab
+  uploadId: 770570

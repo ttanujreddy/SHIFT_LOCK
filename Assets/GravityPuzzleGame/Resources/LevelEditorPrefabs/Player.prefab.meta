@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7dda3dfd2a8b4f5448c945388109c172
+timeCreated: 1466585851
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Resources/LevelEditorPrefabs/Player.prefab
+  uploadId: 770570

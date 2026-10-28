@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2596a6ecc7e416448810a3c1fb783eca
+timeCreated: 1466925032
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Animation/Player.controller
+  uploadId: 770570

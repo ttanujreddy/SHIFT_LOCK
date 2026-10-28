@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 445ea3f2658a52a44bea18c8224b09a2
+timeCreated: 1466586616
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Scripts/MenuUI.cs
+  uploadId: 770570

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: bc2c9fc20e0f89348829d92e67c379bc
+timeCreated: 1466925032
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80442
+  packageName: Gravity Puzzle Game
+  packageVersion: 1.2
+  assetPath: Assets/GravityPuzzleGame/Animation/MenuPlayerAnim.anim
+  uploadId: 770570
