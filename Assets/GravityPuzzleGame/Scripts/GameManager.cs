@@ -2,8 +2,14 @@
 using System.Collections;
 using System.IO;
 
+/// <summary>
+/// Owns the active chamber runtime: loads text layouts, builds the grid, enforces shift limits,
+/// answers collision/floor queries, opens doors, and coordinates gravity with the camera and UI.
+/// Level layouts are loaded from Resources/Levels/Level&lt;id&gt;.txt.
+/// </summary>
 public class GameManager : MonoBehaviour 
 {
+	/// <summary>Internal level ID at which the original SHIFT//LOCK campaign begins.</summary>
 	public const int FirstCustomLevelId = 10;
 	//Level
 	public int levelId;									//The current level.
@@ -12,6 +18,7 @@ public class GameManager : MonoBehaviour
 	[Header("Gravity Shift Budget")]
 	[Min(0)] public int maxGravityShifts = 5; // Fallback for levels without an explicit budget.
 	[Tooltip("Element 0 is Level0, element 1 is Level1, and so on. Set each level's maximum gravity shifts here.")]
+	/// <summary>Per-internal-level shift limits. Element N configures LevelN; serialized scene values can override this initializer.</summary>
 	public int[] gravityShiftsPerLevel = { 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 2, 3, 4 };
 	// New levels missing from an older scene's serialized array default to four shifts.
 	private const int DefaultShiftBudgetForNewLevels = 4;
@@ -50,6 +57,8 @@ public class GameManager : MonoBehaviour
 
 	//This function loads the level. The level it loads is based on what the levelId is.
 	//It reads the level text file and builds the level based on that.
+	/// <summary>Loads the selected text asset, configures its shift budget, initializes the grid, creates tiles, and connects player, camera, and tutorial UI.</summary>
+	/// <remarks>Malformed/out-of-range records are skipped with warnings rather than aborting the full load.</remarks>
 	public void LoadLevel ()
 	{
 		TextAsset levelAsset = Resources.Load<TextAsset>("Levels/Level" + levelId);
@@ -181,6 +190,7 @@ public class GameManager : MonoBehaviour
 	}
 
 	// Starts each chamber/retry with its full gravity-shift allowance.
+	/// <summary>Restores the configured shift allowance for a chamber/retry and refreshes the HUD.</summary>
 	public void ResetGravityShiftBudget()
 	{
 		gravityShiftsRemaining = Mathf.Max(0, maxGravityShifts);
@@ -189,6 +199,9 @@ public class GameManager : MonoBehaviour
 	}
 
 	// Player-initiated gravity changes consume a shift. System resets use FlipGravity directly.
+	/// <summary>Attempts a player-requested gravity change. The direction must change and at least one shift must remain.</summary>
+	/// <param name="dir">The absolute gravity direction requested.</param>
+	/// <returns><see langword="true"/> when gravity changes; otherwise <see langword="false"/>.</returns>
 	public bool TryFlipGravity(GravityDirection dir)
 	{
 		if (dir == gravityDirection || gravityShiftsRemaining <= 0)
@@ -207,6 +220,7 @@ public class GameManager : MonoBehaviour
 	}
 
 	// A gravity switch opens every locked door in the current chamber.
+	/// <summary>Plays the switch cue once, removes locked doors from the runtime grid, and updates switch artwork.</summary>
 	public void ActivateDoors()
 	{
 		if (doorsOpened || grid == null)
@@ -248,6 +262,9 @@ public class GameManager : MonoBehaviour
 	}
 
 	//Can the player move in the direction they want to?
+	/// <summary>Returns whether the adjacent cell is enterable. Blocks, spikes, and locked doors block direct movement.</summary>
+	/// <param name="playerPos">Current player world position.</param>
+	/// <param name="dir">A one-cell direction vector.</param>
 	public bool PlayerCanMove (Vector3 playerPos, Vector3 dir)
 	{
 		int posX = (int)(playerPos.x / 9);
@@ -265,6 +282,10 @@ public class GameManager : MonoBehaviour
 	}
 
 	//Returns the tile type in the direction sent from the player's position.
+	/// <summary>Gets the logical type of the adjacent cell in the requested direction.</summary>
+	/// <param name="playerPos">Current player world position.</param>
+	/// <param name="dir">A one-cell direction vector.</param>
+	/// <returns>The adjacent cell's logical tile type.</returns>
 	public TileType GetTileType (Vector3 playerPos, Vector3 dir)
 	{
 		int posX = (int)(playerPos.x / 9);
@@ -278,6 +299,10 @@ public class GameManager : MonoBehaviour
 	}
 
 	//Returns the tile that the player is ontop of.
+	/// <summary>Searches along gravity for the cell before the first solid block/door; crossing a spike marks the fall as hazardous.</summary>
+	/// <param name="playerPos">Current player world position.</param>
+	/// <param name="dir">The gravity direction.</param>
+	/// <returns>The landing cell, or <see langword="null"/> if none is found.</returns>
 	public Tile GetFloor (Vector3 playerPos, Vector3 dir)
 	{
 		int posX = (int)(playerPos.x / 9);
@@ -311,6 +336,7 @@ public class GameManager : MonoBehaviour
 	}
 
 	//Returns true if there is a floor for the player to fall onto.
+	/// <summary>Checks whether a block or closed door exists somewhere along the gravity ray to stop the player.</summary>
 	public bool HasFloor (Vector3 playerPos, Vector3 dir)
 	{
 		int posX = (int)(playerPos.x / 9);
@@ -342,6 +368,8 @@ public class GameManager : MonoBehaviour
 	}
 
 	//Flips the gravity to the requested direction.
+	/// <summary>Applies absolute gravity, rotates camera/effect, checks for falling, and animates the compass.</summary>
+	/// <remarks>This low-level method does not spend a shift; player input normally calls <see cref="TryFlipGravity"/>.</remarks>
 	public void FlipGravity (GravityDirection dir)
 	{
 		switch(dir){
@@ -376,5 +404,8 @@ public class GameManager : MonoBehaviour
 	}
 }
 
+/// <summary>Absolute directions used by gravity, camera orientation, and player-relative movement.</summary>
 public enum GravityDirection {North, South, East, West}
+
+/// <summary>Logical cell occupancy. A text-file tile ID equals this enum value minus one.</summary>
 public enum TileType {Empty, Block, Player, Spike, EndFlag, GravitySwitch, LockedDoor}

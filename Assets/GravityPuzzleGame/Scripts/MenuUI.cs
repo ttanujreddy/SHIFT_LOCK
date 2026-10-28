@@ -6,9 +6,11 @@ using System.IO;
 using UnityEngine.SceneManagement;
 using TMPro;
 
+/// <summary>Manages menu pages and chamber selection. Visible Levels 1–3 map to internal IDs 10–12 to preserve filenames/budget indexes; each chamber is directly selectable.</summary>
 public class MenuUI : MonoBehaviour 
 {
 	// The original template occupies Level0-Level9. The custom SHIFT//LOCK campaign starts at Level10.
+	/// <summary>First internal ID used by the original SHIFT//LOCK campaign.</summary>
 	const int firstCustomLevelId = 10;
 	//Pages
 	public GameObject menuPage;		//The page containing the menu.
@@ -36,6 +38,7 @@ public class MenuUI : MonoBehaviour
 	
     // Apply generated art to decorative objects placed around the menu scene.
     // Gameplay tiles are themed separately by GameManager when levels are loaded.
+    /// <summary>Applies generated art to menu decorations. Only decorative blocks are normalized to a median size; gameplay prefabs and colliders are untouched.</summary>
     void ApplyDecorativeSprites()
     {
         SpriteRenderer[] renderers = FindObjectsByType<SpriteRenderer>();
@@ -90,6 +93,7 @@ public class MenuUI : MonoBehaviour
 
 	//Called when the menu buttons are pressed to change the page.
 	//"page" is the page that the player wants to change to.
+	/// <summary>Switches between the <c>menu</c> and <c>levels</c> page roots.</summary>
 	public void SetPage (string page)
 	{
 		if(page == "menu"){
@@ -105,6 +109,7 @@ public class MenuUI : MonoBehaviour
 	//This loads the level buttons.
 	//It loops through each level, creating a button on the "Levels" page, and making it so that when you click it,
 	//it calls the PlayLevel function, which starts the level.
+	/// <summary>Creates buttons for consecutive custom levels, labels them 1–3, and routes each to its internal ID; template levels are omitted from the menu.</summary>
 	public void LoadLevels ()
 	{
 		// Count consecutive custom levels, rather than displaying the ten template levels first.
@@ -135,6 +140,8 @@ public class MenuUI : MonoBehaviour
 
 	//Called when a level button gets pressed.
 	//"level" is the variable that the button sends over, telling the function which level to load.
+	/// <summary>Stores the selected internal ID in PlayerPrefs and opens the Game scene (build index 1).</summary>
+	/// <param name="level">Internal ID, not the displayed campaign number.</param>
 	public void PlayLevel (int level)
 	{
 		//We set the playerpref "SelectedLevel" to  be the "level", then we load up the Game.unity scene.
@@ -144,6 +151,7 @@ public class MenuUI : MonoBehaviour
 
 	//Called when the "QUIT" button is pressed.
 	//It quits the application to the desktop.
+	/// <summary>Requests application exit; this does not close the Editor when running in Play mode.</summary>
 	public void QuitGame ()
 	{
 		Application.Quit();

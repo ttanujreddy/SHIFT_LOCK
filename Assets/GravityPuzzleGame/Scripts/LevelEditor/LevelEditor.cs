@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
+/// <summary>Editor-only chamber authoring tool. Previews placement, validates bounds, prevents duplicate occupancy, and saves Resources/Levels/Level&lt;id&gt;.txt. Saving writes under Assets and refreshes AssetDatabase, so this is not a runtime editor.</summary>
 public class LevelEditor : MonoBehaviour 
 {
 	[System.NonSerialized]
@@ -36,6 +37,7 @@ public class LevelEditor : MonoBehaviour
 	}
 
 	//Sets up the grid for a new level.
+	/// <summary>Creates an empty 20×20 grid and selects the first unused sequential level ID.</summary>
 	public void NewLevel ()
 	{
 		grid = new Tile[20,20];
@@ -57,6 +59,7 @@ public class LevelEditor : MonoBehaviour
 
 	// Find the first missing sequential Level<number>.txt ID. Counting every TextAsset
 	// in Resources/Levels can inflate the number when unrelated text assets are present.
+	/// <summary>Finds the lowest unused non-negative Level&lt;id&gt; by checking imported Resources assets and files already on disk.</summary>
 	int GetNextLevelId()
 	{
 		HashSet<int> usedIds = new HashSet<int>();
@@ -86,6 +89,7 @@ public class LevelEditor : MonoBehaviour
 		return nextId;
 	}
 
+	/// <summary>Parses names such as <c>Level12</c> into a non-negative internal ID.</summary>
 	bool TryParseLevelId(string assetName, out int id)
 	{
 		id = -1;
@@ -99,6 +103,8 @@ public class LevelEditor : MonoBehaviour
 
 	//Called when one of the tile buttons get pressed.
 	//It sends over "selection" which will then be the selected tile to place down.
+	/// <summary>Selects a tile ID and updates the translucent placement preview.</summary>
+	/// <param name="selection">Serialized tile ID (0–5).</param>
 	public void SelectTile (int selection)
 	{
 		GameObject prefab = GetTile(selection);
@@ -112,6 +118,7 @@ public class LevelEditor : MonoBehaviour
 		ghostTile.color = new Color(1f, 1f, 1f, 0.5f);
 	}
 
+	/// <summary>Converts mouse coordinates to grid cells, handles placement/deletion, rotates preview, and blocks edits outside the grid or over UI.</summary>
 	void Update ()
 	{
 		if (Camera.main == null || ghostTile == null || grid == null)
@@ -156,6 +163,7 @@ public class LevelEditor : MonoBehaviour
 			: new Color(1f, 0.12f, 0.10f, 0.5f);
 	}
 
+	/// <summary>Checks grid bounds before any tile array access or edit.</summary>
 	bool IsValidGridIndex(int x, int y)
 	{
 		return grid != null &&
@@ -164,6 +172,7 @@ public class LevelEditor : MonoBehaviour
 	}
 
 	// Delete only a tile inside the grid. Clear its reference after destroying it.
+	/// <summary>Destroys the cell's visual GameObject and clears its logical grid reference.</summary>
 	void DeleteTile (int x, int y)
 	{
 		if (!IsValidGridIndex(x, y))
@@ -181,6 +190,7 @@ public class LevelEditor : MonoBehaviour
 	}
 
 	// Place only inside the grid; invalid mouse positions never index the array.
+	/// <summary>Places a selected tile in an empty in-bounds cell using the current 90-degree rotation step.</summary>
 	void PlaceTile (int x, int y)
 	{
 		if (!IsValidGridIndex(x, y))
@@ -198,6 +208,7 @@ public class LevelEditor : MonoBehaviour
 	}
 
 	//Retuns a tile prefab based on the given ID number.
+	/// <summary>Maps editor IDs to prefabs. Switches and doors reuse the block prefab as a base visual.</summary>
 	GameObject GetTile (int selected)
 	{
 		switch(selected){
@@ -220,6 +231,8 @@ public class LevelEditor : MonoBehaviour
 	//Saves the level to a .txt file and saves it in the resources folder.
 	//It converts the tiles, their position and their rotation to an easy to read format for when they
 	//are required to be loaded up.
+	/// <summary>Serializes non-empty cells to comma-separated records and writes the next Level&lt;id&gt;.txt under Assets/GravityPuzzleGame/Resources/Levels.</summary>
+	/// <remarks>Existing files are not overwritten. Spike records include a fourth field for rotation in 90-degree steps.</remarks>
 	public void SaveLevel ()
 	{
 		string t = "";

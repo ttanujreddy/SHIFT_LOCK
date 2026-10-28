@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
+/// <summary>Handles gameplay HUD, shift counter, level-specific hints, compass rotation, and completion UI. Core references are assigned in the scene Inspector.</summary>
 public class GameUI : MonoBehaviour 
 {
 	public TMP_Text levelText;				//The text at the top of the screen displaying the current level.
@@ -33,6 +34,9 @@ public class GameUI : MonoBehaviour
 	}
 
 	// Creates a HUD label at runtime so the existing template scene needs no manual re-wiring.
+	/// <summary>Refreshes the shift HUD, creating its panel/text on demand.</summary>
+	/// <param name="remaining">Shifts left in this attempt.</param>
+	/// <param name="total">Configured starting allowance.</param>
 	public void UpdateShiftCounter(int remaining, int total)
 	{
 		if (shiftCounterText == null)
@@ -42,6 +46,7 @@ public class GameUI : MonoBehaviour
 			shiftCounterText.text = "SHIFTS LEFT: " + remaining + " / " + total;
 	}
 
+	/// <summary>Builds the counter under the same Canvas as <see cref="levelText"/> to preserve Canvas scaling/render mode.</summary>
 	void CreateShiftCounter()
 	{
 		// Anchor the counter to the same canvas as the existing level label.
@@ -88,6 +93,7 @@ public class GameUI : MonoBehaviour
 	}
 
 	//Called when the player wins the game.
+	/// <summary>Shows the completion panel and hides Next Level for the final custom chamber.</summary>
 	public void SetWinScreen ()
 	{
 		winScreen.SetActive(true);
@@ -101,6 +107,7 @@ public class GameUI : MonoBehaviour
 
 	//Called when the player presses the "Next Level" button on the win screen.
 	//It reloads the level, and loads up the next level.
+	/// <summary>Stores the next internal ID and reloads the Game scene to initialize that chamber.</summary>
 	public void NextLevelButton ()
 	{
 		PlayerPrefs.SetInt("SelectedLevel", manager.levelId + 1);
@@ -108,6 +115,7 @@ public class GameUI : MonoBehaviour
 	}
 
 	//Called when the "Menu" button gets pressed on the win screen.
+	/// <summary>Returns to the menu scene, which is build index zero in this setup.</summary>
 	public void MenuButton ()
 	{
 		SceneManager.LoadScene(0);
@@ -116,6 +124,7 @@ public class GameUI : MonoBehaviour
 	//This sets the tutorial text based on what level it is.
 	//If it is level 1, then it will talk about moving, etc.
 	//You can change or remove this to match your levels.
+	/// <summary>Sets instructional text for the selected internal ID, including descriptions for original chambers 10–12.</summary>
 	public void SetTutorial ()
 	{
 		if (manager.levelId >= GameManager.FirstCustomLevelId)
@@ -142,6 +151,7 @@ public class GameUI : MonoBehaviour
 
 	//Called whenever the player changes the gravity. 
 	//It rotates the compass (top right) to face the original north direction.
+	/// <summary>Animates the compass to the angle representing the requested absolute gravity direction.</summary>
 	IEnumerator RotateCompass (GravityDirection dir)
 	{
 		int rot = 0;
