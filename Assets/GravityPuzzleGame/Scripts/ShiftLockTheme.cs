@@ -7,7 +7,8 @@ using TMPro;
 public static class ShiftLockTheme
 {
     public static readonly Color Background = new Color(0.018f, 0.032f, 0.060f, 1f);
-    public static readonly Color Panel = new Color(0.035f, 0.075f, 0.125f, 0.98f);
+    public static readonly Color Panel = new Color(0.055f, 0.125f, 0.19f, 1f);
+    public static readonly Color ButtonBorder = new Color(0.10f, 0.72f, 0.88f, 0.95f);
     public static readonly Color Steel = new Color(0.105f, 0.20f, 0.30f, 1f);
     public static readonly Color SteelLight = new Color(0.22f, 0.38f, 0.49f, 1f);
     public static readonly Color Accent = new Color(0.12f, 0.88f, 1f, 1f);
@@ -209,9 +210,10 @@ public static class ShiftLockTheme
     {
         if (text == null) return;
         text.color = color;
+        text.alpha = 1f;
         if (bold) text.fontStyle |= FontStyles.Bold;
-        text.outlineColor = new Color(0f, 0f, 0f, 0.65f);
-        text.outlineWidth = 0.12f;
+        text.outlineColor = new Color(0f, 0f, 0f, 0.8f);
+        text.outlineWidth = 0.16f;
     }
 
     public static void StyleButton(Button button)
@@ -222,16 +224,27 @@ public static class ShiftLockTheme
 
         ColorBlock colors = button.colors;
         colors.normalColor = Panel;
-        colors.highlightedColor = new Color(0.08f, 0.20f, 0.30f, 1f);
-        colors.pressedColor = new Color(0.02f, 0.42f, 0.52f, 1f);
-        colors.selectedColor = new Color(0.06f, 0.24f, 0.34f, 1f);
-        colors.disabledColor = new Color(0.11f, 0.13f, 0.17f, 0.65f);
+        colors.highlightedColor = new Color(0.10f, 0.30f, 0.42f, 1f);
+        colors.pressedColor = new Color(0.02f, 0.48f, 0.60f, 1f);
+        colors.selectedColor = new Color(0.08f, 0.26f, 0.36f, 1f);
+        colors.disabledColor = new Color(0.10f, 0.14f, 0.19f, 0.9f);
         colors.colorMultiplier = 1f;
         colors.fadeDuration = 0.08f;
         button.colors = colors;
 
+        // Give buttons a visible silhouette against the near-black page background.
+        Outline outline = button.GetComponent<Outline>();
+        if (outline == null) outline = button.gameObject.AddComponent<Outline>();
+        outline.effectColor = ButtonBorder;
+        outline.effectDistance = new Vector2(1.5f, -1.5f);
+        outline.useGraphicAlpha = true;
+
         TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
-        if (label != null) StyleText(label, Text, true);
+        if (label != null)
+        {
+            StyleText(label, Text, true);
+            label.alpha = 1f;
+        }
     }
 
     public static void StylePage(GameObject root, bool mainMenu)
@@ -248,10 +261,13 @@ public static class ShiftLockTheme
                 label.text = "SHIFT//LOCK";
                 StyleText(label, Accent, true);
             }
-            else if (original.IndexOf("LEVEL SELECT", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            else if (original.IndexOf("LEVEL SELECT", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                     original.IndexOf("CHAMBER SELECT", System.StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 label.text = "CHAMBER SELECT";
                 StyleText(label, Accent, true);
+                label.alpha = 1f;
+                label.fontSize = Mathf.Max(label.fontSize, 30f);
             }
             else
             {
