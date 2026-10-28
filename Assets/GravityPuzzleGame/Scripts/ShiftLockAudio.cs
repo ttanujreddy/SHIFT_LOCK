@@ -2,9 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Small synthesized one-shot effects for SHIFT//LOCK. No music and no imported audio assets.
+/// <summary>Runtime-generated one-shot audio. Six short mono clips are synthesized at 22.05 kHz, cached, and played through one persistent non-spatial AudioSource. No external files or background music are used.</summary>
 public sealed class ShiftLockAudio : MonoBehaviour
 {
+    /// <summary>Sample rate used by all generated clips.</summary>
     const int SampleRate = 22050;
     static ShiftLockAudio instance;
 
@@ -17,6 +18,7 @@ public sealed class ShiftLockAudio : MonoBehaviour
     AudioClip victory;
     readonly HashSet<UnityEngine.EntityId> wiredButtonIds = new HashSet<UnityEngine.EntityId>();
 
+    /// <summary>Creates the persistent sound service once so menu and gameplay share one source and clip cache.</summary>
     public static void EnsureExists()
     {
         if (instance != null) return;
@@ -24,6 +26,7 @@ public sealed class ShiftLockAudio : MonoBehaviour
         instance = audioObject.AddComponent<ShiftLockAudio>();
     }
 
+    /// <summary>Enforces the singleton, survives scene changes, configures playback, and synthesizes the effects.</summary>
     void Awake()
     {
         if (instance != null && instance != this)
@@ -48,8 +51,10 @@ public sealed class ShiftLockAudio : MonoBehaviour
         victory = MakeClip("Level_Victory", 0.84f, WaveKind.Victory);
     }
 
+    /// <summary>Waveform recipes used by the clip synthesizer.</summary>
     enum WaveKind { Click, Move, Shift, Switch, Death, Victory }
 
+    /// <summary>Generates PCM samples with oscillators/envelopes and stores them in an AudioClip.</summary>
     AudioClip MakeClip(string clipName, float duration, WaveKind kind)
     {
         int count = Mathf.CeilToInt(SampleRate * duration);
@@ -125,6 +130,7 @@ public sealed class ShiftLockAudio : MonoBehaviour
         return clip;
     }
 
+    /// <summary>Plays a cached effect at the requested event volume.</summary>
     void Play(AudioClip clip, float volume)
     {
         if (source == null || clip == null) return;
@@ -138,6 +144,7 @@ public sealed class ShiftLockAudio : MonoBehaviour
     public static void PlayDeath() { if (instance != null) instance.Play(instance.death, 1.0f); }
     public static void PlayVictory() { if (instance != null) instance.Play(instance.victory, 1.0f); }
 
+    /// <summary>Hooks the click cue to every Button below a root, including inactive descendants.</summary>
     public static void AddClickSounds(GameObject root)
     {
         if (root == null) return;
@@ -145,6 +152,7 @@ public sealed class ShiftLockAudio : MonoBehaviour
             AddClickSound(button);
     }
 
+    /// <summary>Hooks one button once, using its Unity entity ID to avoid duplicate click listeners.</summary>
     public static void AddClickSound(Button button)
     {
         if (button == null || instance == null) return;

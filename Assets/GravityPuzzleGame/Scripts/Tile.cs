@@ -1,13 +1,17 @@
 ﻿using UnityEngine;
 
-// Tile is grid data, not a Unity component. These objects are created with new Tile().
+/// <summary>Logical grid-cell data shared by runtime/editor. This serializable plain C# object is constructed with <c>new Tile()</c>, not AddComponent; empty cells and the player spawn may have no scene object.</summary>
 [System.Serializable]
 public class Tile
 {
-	public int x;			//The x position of the tile.
-	public int y;			//The y position of the tile.
-	public TileType type;	//The type of tile that it is.
-	public GameObject tile;	//The gameobject relevant to this tile.
+	/// <summary>X coordinate in the logical grid, not world-space units.</summary>
+	public int x;
+	/// <summary>Y coordinate in the logical grid, not world-space units.</summary>
+	public int y;
+	/// <summary>Logical tile type used by collision and gameplay rules.</summary>
+	public TileType type;
+	/// <summary>Visual GameObject for the cell; may be null for empty or player cells.</summary>
+	public GameObject tile;
 }
 
 
