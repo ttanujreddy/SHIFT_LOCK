@@ -18,6 +18,8 @@ public class GameUI : MonoBehaviour
 
 	void Start()
 	{
+		ShiftLockAudio.EnsureExists();
+		ShiftLockAudio.AddClickSounds(winScreen);
 		ShiftLockTheme.StyleText(levelText, ShiftLockTheme.Accent, true);
 		if (levelText != null) levelText.fontSize = 28f;
 		ShiftLockTheme.StyleText(tutorialText, ShiftLockTheme.Text, false);

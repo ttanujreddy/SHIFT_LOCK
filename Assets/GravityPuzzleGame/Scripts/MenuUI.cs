@@ -20,10 +20,13 @@ public class MenuUI : MonoBehaviour
 
 	void Start ()
 	{
+		ShiftLockAudio.EnsureExists();
 		// Apply the game's theme before creating level buttons.
 		ShiftLockTheme.ApplyCamera(Camera.main);
 		ShiftLockTheme.StylePage(menuPage, true);
 		ShiftLockTheme.StylePage(levelsPage, false);
+		ShiftLockAudio.AddClickSounds(menuPage);
+		ShiftLockAudio.AddClickSounds(levelsPage);
 		ApplyDecorativeSprites();
 
 		// Show only the original SHIFT//LOCK chambers. Template levels remain available in the project for reference.
@@ -120,6 +123,7 @@ public class MenuUI : MonoBehaviour
 			TMP_Text levelLabel = level.transform.Find("Text").GetComponent<TMP_Text>();
 			ShiftLockTheme.StyleText(levelLabel, ShiftLockTheme.Accent, true);
 			button.onClick.AddListener(new UnityEngine.Events.UnityAction(delegate { PlayLevel(levelId); }));
+			ShiftLockAudio.AddClickSound(button);
 			button.interactable = true; // All custom chambers are directly selectable for evaluation.
 
 			level.transform.localScale = Vector3.one;

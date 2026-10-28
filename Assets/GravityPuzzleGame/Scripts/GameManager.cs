@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour
 
 	void Start ()
 	{
+		ShiftLockAudio.EnsureExists();
 		//When we load in, we set levelId to be the level that the player selected in the menu.
 		levelId = PlayerPrefs.GetInt("SelectedLevel");
 
@@ -198,6 +199,7 @@ public class GameManager : MonoBehaviour
 		}
 
 		gravityShiftsRemaining--;
+		ShiftLockAudio.PlayGravityShift();
 		FlipGravity(dir);
 		if (ui != null)
 			ui.UpdateShiftCounter(gravityShiftsRemaining, maxGravityShifts);
@@ -211,6 +213,7 @@ public class GameManager : MonoBehaviour
 			return;
 
 		doorsOpened = true;
+		ShiftLockAudio.PlaySwitch();
 		for (int x = 0; x < grid.GetLength(0); x++)
 		{
 			for (int y = 0; y < grid.GetLength(1); y++)
