@@ -38,7 +38,7 @@ public class MenuUI : MonoBehaviour
     // Gameplay tiles are themed separately by GameManager when levels are loaded.
     void ApplyDecorativeSprites()
     {
-        SpriteRenderer[] renderers = FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None);
+        SpriteRenderer[] renderers = FindObjectsByType<SpriteRenderer>();
         List<SpriteRenderer> decorativeBlocks = new List<SpriteRenderer>();
 
         foreach (SpriteRenderer renderer in renderers)
