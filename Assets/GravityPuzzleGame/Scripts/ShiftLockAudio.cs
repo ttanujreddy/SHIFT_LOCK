@@ -15,7 +15,7 @@ public sealed class ShiftLockAudio : MonoBehaviour
     AudioClip switchActivate;
     AudioClip death;
     AudioClip victory;
-    readonly HashSet<int> wiredButtonIds = new HashSet<int>();
+    readonly HashSet<UnityEngine.EntityId> wiredButtonIds = new HashSet<UnityEngine.EntityId>();
 
     public static void EnsureExists()
     {
@@ -146,7 +146,7 @@ public sealed class ShiftLockAudio : MonoBehaviour
     public static void AddClickSound(Button button)
     {
         if (button == null || instance == null) return;
-        int id = button.GetEntityId();
+        UnityEngine.EntityId id = button.GetEntityId();
         if (!instance.wiredButtonIds.Add(id)) return;
         button.onClick.AddListener(PlayUiClick);
     }
