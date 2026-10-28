@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.EventSystems;
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
@@ -50,9 +51,51 @@ public class LevelEditor : MonoBehaviour
 			}
 		}
 
-		curLevel = Resources.LoadAll<TextAsset>("Levels").Length;
+		curLevel = GetNextLevelId();
 		saveText.text = "Save as: <b>LEVEL " + curLevel + "</b>";
 	}
+
+	// Find the first missing sequential Level<number>.txt ID. Counting every TextAsset
+	// in Resources/Levels can inflate the number when unrelated text assets are present.
+	int GetNextLevelId()
+	{
+		HashSet<int> usedIds = new HashSet<int>();
+
+		foreach (TextAsset asset in Resources.LoadAll<TextAsset>("Levels"))
+		{
+			int id;
+			if (TryParseLevelId(asset.name, out id))
+				usedIds.Add(id);
+		}
+
+		string levelsPath = Path.Combine(Application.dataPath, "GravityPuzzleGame/Resources/Levels");
+		if (Directory.Exists(levelsPath))
+		{
+			foreach (string filePath in Directory.GetFiles(levelsPath, "Level*.txt"))
+			{
+				int id;
+				if (TryParseLevelId(Path.GetFileNameWithoutExtension(filePath), out id))
+					usedIds.Add(id);
+			}
+		}
+
+		int nextId = 0;
+		while (usedIds.Contains(nextId))
+			nextId++;
+
+		return nextId;
+	}
+
+	bool TryParseLevelId(string assetName, out int id)
+	{
+		id = -1;
+		if (string.IsNullOrEmpty(assetName) ||
+			!assetName.StartsWith("Level", System.StringComparison.OrdinalIgnoreCase) ||
+			assetName.Length <= 5)
+			return false;
+
+		return int.TryParse(assetName.Substring(5), out id) && id >= 0;
+}
 
 	//Called when one of the tile buttons get pressed.
 	//It sends over "selection" which will then be the selected tile to place down.
@@ -163,10 +206,23 @@ public class LevelEditor : MonoBehaviour
 			}
 		}
 
-		if(!File.Exists(Application.dataPath + "/GravityPuzzleGame/Resources/Levels/Level" + curLevel + ".txt")){
-			File.WriteAllText(Application.dataPath + "/GravityPuzzleGame/Resources/Levels/Level" + curLevel + ".txt", t);
-		}else{
-			Debug.Log("File already exists!");
+
+		string levelsPath = Path.Combine(Application.dataPath, "GravityPuzzleGame/Resources/Levels");
+		Directory.CreateDirectory(levelsPath);
+		string targetPath = Path.Combine(levelsPath, "Level" + curLevel + ".txt");
+
+		if (File.Exists(targetPath))
+		{
+			Debug.LogWarning("File already exists; refusing to overwrite: " + targetPath);
+			return;
 		}
+
+		File.WriteAllText(targetPath, t);
+		Debug.Log("Saved new level: " + targetPath);
+#if UNITY_EDITOR
+		UnityEditor.AssetDatabase.Refresh();
+#endif
+		curLevel++;
+		saveText.text = "Save as: <b>LEVEL " + curLevel + "</b>";
 	}
 }
