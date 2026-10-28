@@ -146,7 +146,7 @@ public sealed class ShiftLockAudio : MonoBehaviour
     public static void AddClickSound(Button button)
     {
         if (button == null || instance == null) return;
-        int id = button.GetInstanceID();
+        int id = button.GetEntityId();
         if (!instance.wiredButtonIds.Add(id)) return;
         button.onClick.AddListener(PlayUiClick);
     }
