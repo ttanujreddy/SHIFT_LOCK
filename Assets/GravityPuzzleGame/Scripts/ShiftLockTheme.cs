@@ -122,20 +122,22 @@ public static class ShiftLockTheme
 
     static void DrawSpike(Texture2D t)
     {
-        DrawTriangle(t, 0.13f, 0.18f, 0.87f, 0.88f, Danger);
-        DrawTriangle(t, 0.30f, 0.22f, 0.70f, 0.72f, Amber);
-        FillRect(t, 0.43f, 0.23f, 0.57f, 0.40f, Background);
-        FillRect(t, 0.08f, 0.12f, 0.92f, 0.20f, SteelLight);
+        // Draw a steel spike with a red warning core, rather than a flame-shaped hazard.
+        DrawTriangle(t, 0.13f, 0.18f, 0.87f, 0.90f, SteelLight);
+        DrawTriangle(t, 0.31f, 0.22f, 0.69f, 0.72f, Danger);
+        FillRect(t, 0.08f, 0.12f, 0.92f, 0.20f, Steel);
+        FillRect(t, 0.34f, 0.19f, 0.66f, 0.25f, Amber);
     }
 
     static void DrawExit(Texture2D t)
     {
-        FillRect(t, 0.20f, 0.12f, 0.32f, 0.88f, SteelLight);
-        FillRect(t, 0.24f, 0.14f, 0.29f, 0.82f, Text);
-        FillRect(t, 0.32f, 0.62f, 0.85f, 0.82f, Exit);
-        FillRect(t, 0.32f, 0.48f, 0.70f, 0.62f, Exit);
-        FillRect(t, 0.39f, 0.68f, 0.78f, 0.75f, Text);
-        FillRect(t, 0.11f, 0.07f, 0.43f, 0.15f, Steel);
+        // Extend the post almost the full tile height, keeping the flag silhouette recognizable.
+        FillRect(t, 0.20f, 0.04f, 0.32f, 0.97f, SteelLight);
+        FillRect(t, 0.24f, 0.05f, 0.29f, 0.94f, Text);
+        FillRect(t, 0.32f, 0.67f, 0.88f, 0.86f, Exit);
+        FillRect(t, 0.32f, 0.52f, 0.73f, 0.67f, Exit);
+        FillRect(t, 0.39f, 0.72f, 0.81f, 0.79f, Text);
+        FillRect(t, 0.11f, 0.04f, 0.43f, 0.12f, Steel);
     }
 
     static void DrawSwitch(Texture2D t, bool activated)
@@ -211,7 +213,8 @@ public static class ShiftLockTheme
             float py = (y + 0.5f) / t.height;
             if (py < bottom || py > top) continue;
             float progress = (py - bottom) / Mathf.Max(0.001f, top - bottom);
-            float halfWidth = (right - left) * 0.5f * progress;
+            // Point upward: widest at the base, narrowest at the tip.
+            float halfWidth = (right - left) * 0.5f * (1f - progress);
             float center = (left + right) * 0.5f;
             for (int x = 0; x < t.width; x++)
             {

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 using System.IO;
 using UnityEngine.SceneManagement;
@@ -35,19 +36,52 @@ public class MenuUI : MonoBehaviour
     void ApplyDecorativeSprites()
     {
         SpriteRenderer[] renderers = FindObjectsByType<SpriteRenderer>(FindObjectsSortMode.None);
+        List<SpriteRenderer> decorativeBlocks = new List<SpriteRenderer>();
+
         foreach (SpriteRenderer renderer in renderers)
         {
             if (renderer == null || renderer.sprite == null) continue;
 
             string spriteName = renderer.sprite.name.ToLowerInvariant();
             int tileId = -1;
-            if (spriteName.Contains("block")) tileId = 0;
+            if (spriteName.Contains("block"))
+            {
+                tileId = 0;
+                decorativeBlocks.Add(renderer);
+            }
             else if (spriteName.Contains("spike")) tileId = 2;
             else if (spriteName.Contains("endflag") || spriteName.Contains("flag")) tileId = 3;
             else if (spriteName.Contains("player")) tileId = 1;
 
             if (tileId >= 0)
                 ShiftLockTheme.ApplyTile(renderer.gameObject, tileId);
+        }
+
+        // The original menu scene manually scaled some decorative blocks differently.
+        // Normalize their world-space bounds to a common median tile size without changing
+        // any gameplay prefab, collision, or level layout.
+        if (decorativeBlocks.Count > 1)
+        {
+            List<float> widths = new List<float>();
+            List<float> heights = new List<float>();
+            foreach (SpriteRenderer block in decorativeBlocks)
+            {
+                widths.Add(block.bounds.size.x);
+                heights.Add(block.bounds.size.y);
+            }
+            widths.Sort();
+            heights.Sort();
+            float targetWidth = widths[widths.Count / 2];
+            float targetHeight = heights[heights.Count / 2];
+
+            foreach (SpriteRenderer block in decorativeBlocks)
+            {
+                Vector3 currentBounds = block.bounds.size;
+                Vector3 scale = block.transform.localScale;
+                if (currentBounds.x > 0.0001f) scale.x *= targetWidth / currentBounds.x;
+                if (currentBounds.y > 0.0001f) scale.y *= targetHeight / currentBounds.y;
+                block.transform.localScale = scale;
+            }
         }
     }
 
