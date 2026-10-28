@@ -108,8 +108,8 @@ public class LevelEditor : MonoBehaviour
 		selectedTile = selection;
 		SpriteRenderer prefabRenderer = prefab.GetComponent<SpriteRenderer>();
 		if (prefabRenderer != null)
-			ghostTile.sprite = prefabRenderer.sprite;
-		ghostTile.color = GetEditorTileColor(selection, 0.5f);
+			ghostTile.sprite = ShiftLockTheme.CreateTileSprite(selection, prefabRenderer.sprite);
+		ghostTile.color = new Color(1f, 1f, 1f, 0.5f);
 	}
 
 	void Update ()
@@ -152,8 +152,8 @@ public class LevelEditor : MonoBehaviour
 
 		ghostTile.transform.position = mousePos;
 		ghostTile.color = inBounds
-			? GetEditorTileColor(selectedTile, 0.5f)
-			: new Color(1f, 0f, 0f, 0.5f);
+			? new Color(1f, 1f, 1f, 0.5f)
+			: new Color(1f, 0.12f, 0.10f, 0.5f);
 	}
 
 	bool IsValidGridIndex(int x, int y)
@@ -192,12 +192,7 @@ public class LevelEditor : MonoBehaviour
 
 		Vector3 tilePosition = new Vector3(x * 9 + 4, y * 9 + 4, 0);
 		GameObject placedTile = Instantiate(prefab, tilePosition, Quaternion.Euler(new Vector3(0, 0, -90 * rotation)));
-		if (selectedTile == 4 || selectedTile == 5)
-		{
-			SpriteRenderer renderer = placedTile.GetComponent<SpriteRenderer>();
-			if (renderer != null)
-				renderer.color = GetEditorTileColor(selectedTile, 1f);
-		}
+		ShiftLockTheme.ApplyTile(placedTile, selectedTile);
 		grid[x, y].type = (TileType)(selectedTile + 1);
 		grid[x, y].tile = placedTile;
 	}
@@ -220,15 +215,6 @@ public class LevelEditor : MonoBehaviour
 		}
 
 		return null;
-	}
-
-	Color GetEditorTileColor(int tileSelection, float alpha)
-	{
-		if (tileSelection == 4)
-			return new Color(0.15f, 0.85f, 1f, alpha);
-		if (tileSelection == 5)
-			return new Color(1f, 0.28f, 0.18f, alpha);
-		return new Color(1f, 1f, 1f, alpha);
 	}
 
 	//Saves the level to a .txt file and saves it in the resources folder.

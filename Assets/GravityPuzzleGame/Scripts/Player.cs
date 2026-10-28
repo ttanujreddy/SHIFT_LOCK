@@ -241,22 +241,16 @@ public class Player : MonoBehaviour
 	//This is called whenever the player falls off the map or falls into a spike.
 	public void Die ()
 	{
-		//We reset the player's position, the gravity direction and other variables.
-
-		transform.position = manager.playerSpawn;
-		manager.FlipGravity(GravityDirection.North);
-		manager.ResetGravityShiftBudget();
-
-		fallingInSpikes = false;
-		falling = false;
-		moving = false;
-
-		sr.color = Color.white;
+		// Reload the complete chamber, not just the player. This resets opened doors,
+		// switches, gravity, the shift budget, spawned tiles, and all player state.
+		ShiftLockAudio.PlayDeath();
+		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 
 	//This is called when the player lands on the flag.
 	public void Win ()
 	{
+		ShiftLockAudio.PlayVictory();
 		//We tell the player prefs that we have won this level.
 		PlayerPrefs.SetInt("Level" + manager.levelId, 2);
 
@@ -287,6 +281,7 @@ public class Player : MonoBehaviour
 	//This is called once the player moves. This is the movement animation.
 	IEnumerator Move ()
 	{
+		ShiftLockAudio.PlayMove();
 		while(transform.position != targetPos){
 			transform.position = Vector3.MoveTowards(transform.position, targetPos, 54 * Time.deltaTime);
 			yield return null;

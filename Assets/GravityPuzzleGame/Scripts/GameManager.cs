@@ -29,8 +29,17 @@ public class GameManager : MonoBehaviour
 
 	void Start ()
 	{
+		ShiftLockAudio.EnsureExists();
 		//When we load in, we set levelId to be the level that the player selected in the menu.
 		levelId = PlayerPrefs.GetInt("SelectedLevel");
+
+		// Apply the SHIFT//LOCK palette to the gameplay camera and UI.
+		ShiftLockTheme.ApplyCamera(cameraController != null && cameraController.cam != null ? cameraController.cam : Camera.main);
+		if (levelCompleteParticleEffect != null)
+		{
+			ParticleSystem.MainModule particleSettings = levelCompleteParticleEffect.main;
+			particleSettings.startColor = ShiftLockTheme.Accent;
+		}
 
 		// Set the UI reference before loading so the level can update its HUD.
 		ui.manager = this;
@@ -133,6 +142,7 @@ public class GameManager : MonoBehaviour
 
 			Vector3 pos = new Vector3((tileX + 1) * 9, (tileY + 1) * 9, 0);
 			GameObject tileObject = Instantiate(prefab, pos, Quaternion.identity);
+			ShiftLockTheme.ApplyTile(tileObject, tileId);
 			Tile gridTile = new Tile
 			{
 				x = tileX + 1,
@@ -163,14 +173,6 @@ public class GameManager : MonoBehaviour
 			if (tileId == 3)
 				levelCompleteParticleEffect.transform.position = tileObject.transform.position;
 
-			// Temporary switch/door visuals; the planned art pass will replace these.
-			if (tileId == 4 || tileId == 5)
-			{
-				SpriteRenderer renderer = tileObject.GetComponent<SpriteRenderer>();
-				if (renderer != null)
-					renderer.color = tileId == 4 ? new Color(0.15f, 0.85f, 1f, 1f) : new Color(1f, 0.28f, 0.18f, 1f);
-			}
-
 			grid[tileX + 1, tileY + 1] = gridTile;
 		}
 
@@ -197,6 +199,7 @@ public class GameManager : MonoBehaviour
 		}
 
 		gravityShiftsRemaining--;
+		ShiftLockAudio.PlayGravityShift();
 		FlipGravity(dir);
 		if (ui != null)
 			ui.UpdateShiftCounter(gravityShiftsRemaining, maxGravityShifts);
@@ -210,6 +213,7 @@ public class GameManager : MonoBehaviour
 			return;
 
 		doorsOpened = true;
+		ShiftLockAudio.PlaySwitch();
 		for (int x = 0; x < grid.GetLength(0); x++)
 		{
 			for (int y = 0; y < grid.GetLength(1); y++)
@@ -229,7 +233,10 @@ public class GameManager : MonoBehaviour
 				{
 					SpriteRenderer renderer = cell.tile.GetComponent<SpriteRenderer>();
 					if (renderer != null)
-						renderer.color = new Color(0.25f, 1f, 0.45f, 1f);
+					{
+						renderer.sprite = ShiftLockTheme.CreateTileSprite(6, renderer.sprite);
+						renderer.color = Color.white;
+					}
 				}
 			}
 		}
