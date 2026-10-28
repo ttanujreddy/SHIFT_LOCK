@@ -9,7 +9,9 @@ public class GameManager : MonoBehaviour
 	public int levels;									//The total amount of levels there are.
 
 	[Header("Gravity Shift Budget")]
-	[Min(0)] public int maxGravityShifts = 5;
+	[Min(0)] public int maxGravityShifts = 5; // Fallback for levels without an explicit budget.
+	[Tooltip("Element 0 is Level0, element 1 is Level1, and so on. Set each level's maximum gravity shifts here.")]
+	public int[] gravityShiftsPerLevel = { 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 2 };
 	[System.NonSerialized] public int gravityShiftsRemaining;
 	[System.NonSerialized]
 	public Tile[,] grid;								//Runtime-only tile grid.
@@ -43,6 +45,17 @@ public class GameManager : MonoBehaviour
 		{
 			Debug.LogError("Could not load level " + levelId + ". Expected Resources/Levels/Level" + levelId + ".txt.");
 			return;
+		}
+
+		// Use the configured budget for this level; fall back to maxGravityShifts if no entry exists.
+		if (gravityShiftsPerLevel != null &&
+			levelId >= 0 && levelId < gravityShiftsPerLevel.Length)
+		{
+			maxGravityShifts = Mathf.Max(0, gravityShiftsPerLevel[levelId]);
+		}
+		else
+		{
+			maxGravityShifts = Mathf.Max(0, maxGravityShifts);
 		}
 
 		ResetGravityShiftBudget();
