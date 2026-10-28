@@ -107,60 +107,80 @@ public class LevelEditor : MonoBehaviour
 
 	void Update ()
 	{
-		mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		mousePos = new Vector3((int)(mousePos.x / 9) * 9 + 4, (int)(mousePos.y / 9) * 9 + 4, 0);
+		if (Camera.main == null || ghostTile == null || grid == null)
+			return;
 
-		//Placing tiles.
-		if(Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()){
-			PlaceTile(mousePos);
+		Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		int cellX = Mathf.FloorToInt(worldMousePos.x / 9f);
+		int cellY = Mathf.FloorToInt(worldMousePos.y / 9f);
+		mousePos = new Vector3(cellX * 9 + 4, cellY * 9 + 4, 0);
+
+		bool inBounds = IsValidGridIndex(cellX, cellY);
+		bool pointerOverUI = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+
+		// Only edit when the pointer maps to a real grid cell and is not over the UI.
+		if (inBounds && !pointerOverUI)
+		{
+			if (Input.GetMouseButton(0))
+				PlaceTile(cellX, cellY);
+
+			if (Input.GetMouseButton(1))
+				DeleteTile(cellX, cellY);
 		}
 
-		//Deleting tiles.
-		if(Input.GetMouseButton(1) && !EventSystem.current.IsPointerOverGameObject()){
-			DeleteTile(mousePos);
-		}
-
-		//Rotating tiles.
-		if(Input.GetKeyDown(KeyCode.R)){
-			if(rotation == 4){
-				rotation = 0;
-			}else{
-				rotation += 1;
-			}
-
+		if (Input.GetKeyDown(KeyCode.R))
+		{
+			rotation = (rotation + 1) % 5;
 			ghostTile.transform.rotation = Quaternion.Euler(new Vector3(0, 0, -90 * rotation));
 		}
 
-		//Escaping to menu.
-		if(Input.GetKeyDown(KeyCode.Escape)){
+		if (Input.GetKeyDown(KeyCode.Escape))
 			SceneManager.LoadScene(0);
-		}
 
 		ghostTile.transform.position = mousePos;
-
-		//If the mouse is outside of the boundry, then the ghost tile will be red.
-		if(mousePos.x < 0 || mousePos.y < 0){
-			ghostTile.color = new Color(1.0f, 0.0f, 0.0f, 0.5f);
-		}else{
-			ghostTile.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
-		}
+		ghostTile.color = inBounds
+			? new Color(1f, 1f, 1f, 0.5f)
+			: new Color(1f, 0f, 0f, 0.5f);
 	}
 
-	//Deletes the tile at the give position ("pos").
-	void DeleteTile (Vector3 pos)
+	bool IsValidGridIndex(int x, int y)
 	{
-		grid[(int)(pos.x / 9), (int)(pos.y / 9)].type = TileType.Empty;
-		Destroy(grid[(int)(pos.x / 9), (int)(pos.y / 9)].tile);
+		return grid != null &&
+			x >= 0 && x < grid.GetLength(0) &&
+			y >= 0 && y < grid.GetLength(1);
 	}
 
-	//Places the selected tile at the given position ("pos").
-	void PlaceTile (Vector3 pos)
+	// Delete only a tile inside the grid. Clear its reference after destroying it.
+	void DeleteTile (int x, int y)
 	{
-		if(grid[(int)(pos.x / 9), (int)(pos.y / 9)].type == TileType.Empty){
-			GameObject tile = Instantiate(GetTile(selectedTile), new Vector3(pos.x, pos.y, 0), Quaternion.Euler(new Vector3(0, 0, -90 * rotation))) as GameObject;
-			grid[(int)(pos.x / 9), (int)(pos.y / 9)].type = (TileType)(selectedTile + 1);
-			grid[(int)(pos.x / 9), (int)(pos.y / 9)].tile = tile;
-		}
+		if (!IsValidGridIndex(x, y))
+			return;
+
+		Tile cell = grid[x, y];
+		if (cell == null || cell.type == TileType.Empty)
+			return;
+
+		if (cell.tile != null)
+			Destroy(cell.tile);
+
+		cell.type = TileType.Empty;
+		cell.tile = null;
+	}
+
+	// Place only inside the grid; invalid mouse positions never index the array.
+	void PlaceTile (int x, int y)
+	{
+		if (!IsValidGridIndex(x, y))
+			return;
+
+		GameObject prefab = GetTile(selectedTile);
+		if (prefab == null || grid[x, y] == null || grid[x, y].type != TileType.Empty)
+			return;
+
+		Vector3 tilePosition = new Vector3(x * 9 + 4, y * 9 + 4, 0);
+		GameObject placedTile = Instantiate(prefab, tilePosition, Quaternion.Euler(new Vector3(0, 0, -90 * rotation)));
+		grid[x, y].type = (TileType)(selectedTile + 1);
+		grid[x, y].tile = placedTile;
 	}
 
 	//Retuns a tile prefab based on the given ID number.
