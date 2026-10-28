@@ -7,7 +7,8 @@ public class GameManager : MonoBehaviour
 	//Level
 	public int levelId;									//The current level.
 	public int levels;									//The total amount of levels there are.
-	public Tile[,] grid;								//The 2D array holding all out tiles.
+	[System.NonSerialized]
+	public Tile[,] grid;								//Runtime-only tile grid.
 	public Vector2 playerSpawn;							//The position where the player will spawn.
 	public GravityDirection gravityDirection;			//The current direction of gravity.
 	public ParticleSystem levelCompleteParticleEffect;	//The particle effect that will be played once the player completes a level.
@@ -30,58 +31,106 @@ public class GameManager : MonoBehaviour
 	//It reads the level text file and builds the level based on that.
 	public void LoadLevel ()
 	{
-		grid = new Tile[20, 20];
-		string level = Resources.Load<TextAsset>("Levels/Level" + levelId).ToString();
-		string[] lines = level.Split("\n"[0]); 
-		ui.levelText.text = "LEVEL " + levelId;
+		TextAsset levelAsset = Resources.Load<TextAsset>("Levels/Level" + levelId);
+		if (levelAsset == null)
+		{
+			Debug.LogError("Could not load level " + levelId + ". Expected Resources/Levels/Level" + levelId + ".txt.");
+			return;
+		}
 
+		grid = new Tile[20, 20];
+		string[] lines = levelAsset.text.Split('\n');
+		ui.levelText.text = "LEVEL " + levelId;
 		levels = Resources.LoadAll<TextAsset>("Levels").Length;
 
-		//Setting up the grid.
-		for(int x = 0; x < 20; x++){
-			for(int y = 0; y < 20; y++){
-				Tile g = new Tile();
-				g.x = x;
-				g.y = y;
-				g.type = TileType.Empty;
-				grid[x, y] = g;
+		// Initialize every cell as empty before applying the level records.
+		for (int x = 0; x < 20; x++)
+		{
+			for (int y = 0; y < 20; y++)
+			{
+				grid[x, y] = new Tile
+				{
+					x = x,
+					y = y,
+					type = TileType.Empty
+				};
 			}
 		}
 
-		//Creating the tiles.
-		foreach(string l in lines){
-			if(l != null){
-				string[] s = l.Split(","[0]);
-				Vector3 pos = new Vector3((int.Parse(s[0]) + 1) * 9, (int.Parse(s[1]) + 1) * 9, 0);
-				GameObject t = Pool.GetTile(int.Parse(s[2]));
+		// Blank lines and malformed records should not crash level loading.
+		foreach (string rawLine in lines)
+		{
+			if (string.IsNullOrWhiteSpace(rawLine))
+				continue;
 
-				GameObject tile = Instantiate(t, pos, Quaternion.identity) as GameObject;
-
-				Tile g = grid[int.Parse(s[0]) + 1, int.Parse(s[1]) + 1];
-				g = new Tile();
-				g.x = int.Parse(s[0]) + 1;
-				g.y = int.Parse(s[1]) + 1;
-				g.type = (TileType)int.Parse(s[2]) + 1;
-				g.tile = tile;
-
-				if(s[2].Contains("1")){
-					player = tile.GetComponent<Player>();
-					player.manager = this;
-					cameraController.playerTarget = player.gameObject;
-					g.type = TileType.Empty;
-					playerSpawn = pos;
-				}
-
-				if(s[2].Contains("2")){
-					tile.transform.rotation = Quaternion.Euler(new Vector3(0, 0, int.Parse(s[3]) * -90));
-				}
-
-				if(s[2].Contains("3")){
-					levelCompleteParticleEffect.transform.position = tile.transform.position;
-				}
-
-				grid[int.Parse(s[0]) + 1, int.Parse(s[1]) + 1] = g;
+			string[] fields = rawLine.Trim().Split(',');
+			int tileX;
+			int tileY;
+			int tileId;
+			if (fields.Length < 3 ||
+				!int.TryParse(fields[0].Trim(), out tileX) ||
+				!int.TryParse(fields[1].Trim(), out tileY) ||
+				!int.TryParse(fields[2].Trim(), out tileId))
+			{
+				Debug.LogWarning("Skipping invalid tile record in level " + levelId + ": " + rawLine);
+				continue;
 			}
+
+			// Coordinates are shifted by one when mapped into the 20x20 runtime grid.
+			if (tileX < 0 || tileX >= 19 || tileY < 0 || tileY >= 19 || tileId < 0 || tileId > 3)
+			{
+				Debug.LogWarning("Skipping out-of-range tile record in level " + levelId + ": " + rawLine);
+				continue;
+			}
+
+			int spikeRotation = 0;
+			if (tileId == 2 &&
+				(fields.Length < 4 || !int.TryParse(fields[3].Trim(), out spikeRotation)))
+			{
+				Debug.LogWarning("Skipping spike with missing or invalid rotation in level " + levelId + ": " + rawLine);
+				continue;
+			}
+
+			GameObject prefab = Pool.GetTile(tileId);
+			if (prefab == null)
+			{
+				Debug.LogWarning("No prefab exists for tile type " + tileId + ". Skipping: " + rawLine);
+				continue;
+			}
+
+			Vector3 pos = new Vector3((tileX + 1) * 9, (tileY + 1) * 9, 0);
+			GameObject tileObject = Instantiate(prefab, pos, Quaternion.identity);
+			Tile gridTile = new Tile
+			{
+				x = tileX + 1,
+				y = tileY + 1,
+				type = (TileType)(tileId + 1),
+				tile = tileObject
+			};
+
+			if (tileId == 1)
+			{
+				player = tileObject.GetComponent<Player>();
+				if (player == null)
+				{
+					Debug.LogError("The player prefab has no Player component.");
+					Destroy(tileObject);
+					continue;
+				}
+
+				player.manager = this;
+				cameraController.playerTarget = player.gameObject;
+				gridTile.type = TileType.Empty;
+				playerSpawn = pos;
+			}
+
+			if (tileId == 2)
+				tileObject.transform.rotation = Quaternion.Euler(new Vector3(0, 0, spikeRotation * -90));
+
+			if (tileId == 3)
+				levelCompleteParticleEffect.transform.position = tileObject.transform.position;
+
+			grid[tileX + 1, tileY + 1] = gridTile;
 		}
 
 		cameraController.SetTarget(this);

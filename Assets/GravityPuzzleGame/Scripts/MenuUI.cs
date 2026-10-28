@@ -25,14 +25,6 @@ public class MenuUI : MonoBehaviour
 		LoadLevels();
 	}
 
-	void Update ()
-	{
-		//Used for debugging. Deletes all the player prefs.
-		//AKA makes the levels all locked as if you have never played them.
-		if(Input.GetKeyDown(KeyCode.RightBracket))
-			PlayerPrefs.DeleteAll();
-	}
-
 	//Called when the menu buttons are pressed to change the page.
 	//"page" is the page that the player wants to change to.
 	public void SetPage (string page)

@@ -8,7 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class LevelEditor : MonoBehaviour 
 {
-	public Tile[,] grid;				//The 2D array holding all the tiles.
+	[System.NonSerialized]
+	public Tile[,] grid;				//Runtime-only tile grid.
 	public Vector3 mousePos;			//The world position of the mouse.
 	public int rotation;				//The current rotation of the placing tile.
 	public SpriteRenderer ghostTile;	//The translucent tile to show you where you are going to place a tile.
