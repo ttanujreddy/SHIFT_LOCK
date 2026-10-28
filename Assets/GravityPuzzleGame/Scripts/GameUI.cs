@@ -41,7 +41,7 @@ public class GameUI : MonoBehaviour
 		rect.anchorMin = new Vector2(0, 1);
 		rect.anchorMax = new Vector2(0, 1);
 		rect.pivot = new Vector2(0, 1);
-		rect.anchoredPosition = new Vector2(18, -54);
+		rect.anchoredPosition = new Vector2(18, -88);
 		rect.sizeDelta = new Vector2(300, 42);
 
 		shiftCounterText = counterObject.GetComponent<TextMeshProUGUI>();
