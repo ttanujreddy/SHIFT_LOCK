@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-/// <summary>Logical grid-cell data shared by runtime/editor. This serializable plain C# object is constructed with <c>new Tile()</c>, not AddComponent; empty cells and the player spawn may have no scene object.</summary>
+/// <summary>Logical grid-cell data shared by runtime/editor. This serializable plain C# object is constructed with <c>new Tile()</c>, not AddComponent. The player's grid cell uses <see cref="TileType.Empty"/> for collision while retaining the player's GameObject reference.</summary>
 [System.Serializable]
 public class Tile
 {
