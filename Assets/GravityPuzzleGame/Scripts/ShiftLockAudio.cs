@@ -44,8 +44,8 @@ public sealed class ShiftLockAudio : MonoBehaviour
         moveTick = MakeClip("Move_Tick", 0.045f, WaveKind.Move);
         gravityShift = MakeClip("Gravity_Shift", 0.19f, WaveKind.Shift);
         switchActivate = MakeClip("Switch_Activate", 0.28f, WaveKind.Switch);
-        death = MakeClip("Player_Death", 0.32f, WaveKind.Death);
-        victory = MakeClip("Level_Victory", 0.78f, WaveKind.Victory);
+        death = MakeClip("Player_Death", 0.42f, WaveKind.Death);
+        victory = MakeClip("Level_Victory", 0.84f, WaveKind.Victory);
     }
 
     enum WaveKind { Click, Move, Shift, Switch, Death, Victory }
@@ -97,11 +97,13 @@ public sealed class ShiftLockAudio : MonoBehaviour
                     break;
 
                 case WaveKind.Death:
-                    frequency = Mathf.Lerp(330f, 68f, normalized);
+                    // A clearly audible falling alarm: descending tones with a stronger transient.
+                    frequency = Mathf.Lerp(560f, 105f, normalized);
                     sample = Mathf.Sin(2f * Mathf.PI * frequency * t);
-                    sample += 0.35f * Mathf.Sin(2f * Mathf.PI * frequency * 0.5f * t);
-                    float rasp = Mathf.Sin(2f * Mathf.PI * 37f * t) * Mathf.Sin(2f * Mathf.PI * 73f * t);
-                    samples[i] = (sample * 0.65f + rasp * 0.20f) * envelope * 0.24f;
+                    sample += 0.42f * Mathf.Sin(2f * Mathf.PI * frequency * 1.48f * t);
+                    float rasp = Mathf.Sin(2f * Mathf.PI * 39f * t) * Mathf.Sin(2f * Mathf.PI * 81f * t);
+                    float deathPulse = 0.70f + 0.30f * Mathf.Sin(2f * Mathf.PI * 7f * t);
+                    samples[i] = (sample * 0.72f + rasp * 0.32f) * envelope * deathPulse * 0.42f;
                     break;
 
                 default: // Victory: a short three-note arpeggio, not background music.
@@ -133,8 +135,8 @@ public sealed class ShiftLockAudio : MonoBehaviour
     public static void PlayMove() { if (instance != null) instance.Play(instance.moveTick, 0.30f); }
     public static void PlayGravityShift() { if (instance != null) instance.Play(instance.gravityShift, 0.72f); }
     public static void PlaySwitch() { if (instance != null) instance.Play(instance.switchActivate, 0.82f); }
-    public static void PlayDeath() { if (instance != null) instance.Play(instance.death, 0.85f); }
-    public static void PlayVictory() { if (instance != null) instance.Play(instance.victory, 0.9f); }
+    public static void PlayDeath() { if (instance != null) instance.Play(instance.death, 1.0f); }
+    public static void PlayVictory() { if (instance != null) instance.Play(instance.victory, 1.0f); }
 
     public static void AddClickSounds(GameObject root)
     {

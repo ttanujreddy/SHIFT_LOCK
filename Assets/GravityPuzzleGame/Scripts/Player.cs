@@ -241,18 +241,10 @@ public class Player : MonoBehaviour
 	//This is called whenever the player falls off the map or falls into a spike.
 	public void Die ()
 	{
+		// Reload the complete chamber, not just the player. This resets opened doors,
+		// switches, gravity, the shift budget, spawned tiles, and all player state.
 		ShiftLockAudio.PlayDeath();
-		//We reset the player's position, the gravity direction and other variables.
-
-		transform.position = manager.playerSpawn;
-		manager.FlipGravity(GravityDirection.North);
-		manager.ResetGravityShiftBudget();
-
-		fallingInSpikes = false;
-		falling = false;
-		moving = false;
-
-		sr.color = Color.white;
+		SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 
 	//This is called when the player lands on the flag.
