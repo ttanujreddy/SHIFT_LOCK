@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class Tile : MonoBehaviour 
+// Tile is grid data, not a Unity component. These objects are created with new Tile().
+[System.Serializable]
+public class Tile
 {
 	public int x;			//The x position of the tile.
 	public int y;			//The y position of the tile.

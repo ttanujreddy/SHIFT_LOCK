@@ -45,8 +45,7 @@ public class MenuUI : MonoBehaviour
 	public void LoadLevels ()
 	{
 		for(int x = 0; x < Resources.LoadAll<TextAsset>("Levels").Length; x++){
-			GameObject level = Instantiate(levelButton, levelHolder.transform.position, Quaternion.identity) as GameObject;
-			level.transform.parent = levelHolder.transform;
+			GameObject level = Instantiate(levelButton, levelHolder.transform, false);
 			level.transform.Find("Text").GetComponent<TMP_Text>().text = "LEVEL " + x;
 			int e = x;
 			level.transform.GetComponent<Button>().onClick.AddListener(new UnityEngine.Events.UnityAction(delegate {PlayLevel(e);}));
