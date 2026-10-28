@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
 	[Header("Gravity Shift Budget")]
 	[Min(0)] public int maxGravityShifts = 5; // Fallback for levels without an explicit budget.
 	[Tooltip("Element 0 is Level0, element 1 is Level1, and so on. Set each level's maximum gravity shifts here.")]
-	public int[] gravityShiftsPerLevel = { 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 2 };
+	public int[] gravityShiftsPerLevel = { 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 2, 4 };
 	[System.NonSerialized] public int gravityShiftsRemaining;
 	[System.NonSerialized]
 	public Tile[,] grid;								//Runtime-only tile grid.
