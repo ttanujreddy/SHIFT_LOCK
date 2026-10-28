@@ -142,12 +142,22 @@ public static class ShiftLockTheme
         FillRect(t, 0.45f, 0.37f, 0.55f, 0.63f, SteelLight);
     }
 
+    // Keep generated art inside the original visible tile footprint; template sprites had
+    // transparent padding that the procedural sprites must preserve.
+    const float ArtInset = 0.10f;
+    const float ArtSpan = 1f - (ArtInset * 2f);
+
+    static float Inset(float value)
+    {
+        return ArtInset + value * ArtSpan;
+    }
+
     static void FillRect(Texture2D t, float left, float bottom, float right, float top, Color color)
     {
-        int x0 = Mathf.Clamp(Mathf.FloorToInt(left * t.width), 0, t.width - 1);
-        int y0 = Mathf.Clamp(Mathf.FloorToInt(bottom * t.height), 0, t.height - 1);
-        int x1 = Mathf.Clamp(Mathf.CeilToInt(right * t.width), x0 + 1, t.width);
-        int y1 = Mathf.Clamp(Mathf.CeilToInt(top * t.height), y0 + 1, t.height);
+        int x0 = Mathf.Clamp(Mathf.FloorToInt(Inset(left) * t.width), 0, t.width - 1);
+        int y0 = Mathf.Clamp(Mathf.FloorToInt(Inset(bottom) * t.height), 0, t.height - 1);
+        int x1 = Mathf.Clamp(Mathf.CeilToInt(Inset(right) * t.width), x0 + 1, t.width);
+        int y1 = Mathf.Clamp(Mathf.CeilToInt(Inset(top) * t.height), y0 + 1, t.height);
         for (int y = y0; y < y1; y++)
             for (int x = x0; x < x1; x++)
                 t.SetPixel(x, y, color);
@@ -155,15 +165,19 @@ public static class ShiftLockTheme
 
     static void FillCircle(Texture2D t, float centerX, float centerY, float radius, Color color)
     {
+        float cx = Inset(centerX);
+        float cy = Inset(centerY);
+        float rx = radius * ArtSpan;
+        float ry = radius * ArtSpan;
         for (int y = 0; y < t.height; y++)
         {
             float py = (y + 0.5f) / t.height;
             for (int x = 0; x < t.width; x++)
             {
                 float px = (x + 0.5f) / t.width;
-                float dx = px - centerX;
-                float dy = py - centerY;
-                if (dx * dx + dy * dy <= radius * radius)
+                float dx = (px - cx) / Mathf.Max(rx, 0.001f);
+                float dy = (py - cy) / Mathf.Max(ry, 0.001f);
+                if (dx * dx + dy * dy <= 1f)
                     t.SetPixel(x, y, color);
             }
         }
@@ -171,6 +185,10 @@ public static class ShiftLockTheme
 
     static void DrawTriangle(Texture2D t, float left, float bottom, float right, float top, Color color)
     {
+        left = Inset(left);
+        bottom = Inset(bottom);
+        right = Inset(right);
+        top = Inset(top);
         for (int y = 0; y < t.height; y++)
         {
             float py = (y + 0.5f) / t.height;
@@ -255,8 +273,22 @@ public static class ShiftLockTheme
     public static void StylePanel(GameObject root)
     {
         if (root == null) return;
-        Image image = root.GetComponent<Image>();
-        if (image != null) image.color = Panel;
+
+        // The template win-screen can have its white full-screen Image nested below the root.
+        // Recolor every non-button Image so the overlay never flashes white on completion.
+        Image[] images = root.GetComponentsInChildren<Image>(true);
+        foreach (Image image in images)
+        {
+            if (image == null) continue;
+            if (image.GetComponent<Button>() != null || image.GetComponentInParent<Button>() != null)
+                continue;
+
+            RectTransform rect = image.rectTransform;
+            bool fillsScreen = rect.anchorMin.x <= 0.05f && rect.anchorMin.y <= 0.05f &&
+                               rect.anchorMax.x >= 0.95f && rect.anchorMax.y >= 0.95f;
+            image.color = fillsScreen ? Background : Panel;
+        }
+
         foreach (TMP_Text label in root.GetComponentsInChildren<TMP_Text>(true))
             StyleText(label, Text, true);
         foreach (Button button in root.GetComponentsInChildren<Button>(true))
