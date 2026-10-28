@@ -2,6 +2,9 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Handles player-relative controls, gravity-driven movement, switch and exit triggers, hazards, death, and victory. Reloading the scene on death restores the entire chamber.
+/// </summary>
 public class Player : MonoBehaviour 
 {
 	public GameManager manager;		//The game manager class.
@@ -14,6 +17,9 @@ public class Player : MonoBehaviour
 	public bool moving;				//Is the player currently moving?
 	public bool fallingInSpikes;	//Is the player currently falling into a spike?
 
+	/// <summary>
+	/// Accept movement and gravity input while stationary; R restarts the chamber and Escape returns to the menu.
+	/// </summary>
 	void Update ()
 	{
 		//If the player is not moving and not falling, they are allowed to either move or change the gravity.
@@ -31,6 +37,9 @@ public class Player : MonoBehaviour
 
 	//Manages the key press inputs. 
 	//Manages moving the player and the changing of the gravity.
+	/// <summary>
+	/// Route arrow keys to movement and W/A/D to gravity-change requests.
+	/// </summary>
 	void Inputs ()
 	{
 		//Move Left
@@ -61,6 +70,9 @@ public class Player : MonoBehaviour
 
 	//Called when the player presses either the left or right arrow key to move.
 	//"d" is the direction that the player wants to move ("left" or "right").
+	/// <summary>
+	/// Translate player-relative left/right input into world-space movement based on the current gravity direction.
+	/// </summary>
 	public void MoveInput (string d)
 	{
 		//If the target direction is "left", then we set the "dir" to be the left of the player depending
@@ -110,6 +122,9 @@ public class Player : MonoBehaviour
 
 	//Called when the player presses either the W, A, S or D keys to change the gravity direction.
 	//"dir" is the direction that the gravity will change to.
+	/// <summary>
+	/// Map W/A/D to a new world gravity direction relative to the player's orientation.
+	/// </summary>
 	public void ChangeGravityInput (string dir)
 	{
 		//If the target gravity direction is "up", then we flip the gravity, depending on what the
@@ -183,6 +198,9 @@ public class Player : MonoBehaviour
 	//This is called after the player flips the gravity.
 	//It is also called after the player moves to a new position.
 	//It checks to see if there is a block under the player. If there isn't then the player will fall.
+	/// <summary>
+	/// Determine whether the player is supported, should fall toward a landing tile, or should fall into the void.
+	/// </summary>
 	public void CheckGravity ()
 	{
 		//We first create a temp variable "dir", this is the direction of gravity in a Vector3 format.
@@ -227,6 +245,9 @@ public class Player : MonoBehaviour
 	//This is called one the player falls and lands on a tile, or if the player moves.
 	//It checks to see if the current tile that the player is on, is a flag.
 	//If it is a flag, then the player has won the level and the Win() function gets called.
+	/// <summary>
+	/// Activate a switch or trigger victory when the player enters the corresponding grid cell.
+	/// </summary>
 	public void CheckCurTile ()
 	{
 		TileType t = manager.grid[(int)(transform.position.x / 9), (int)(transform.position.y / 9)].type;
@@ -239,6 +260,9 @@ public class Player : MonoBehaviour
 	}
 
 	//This is called whenever the player falls off the map or falls into a spike.
+	/// <summary>
+	/// Play the death effect and reload the gameplay scene, resetting switches, doors, gravity, player state, and shift budget.
+	/// </summary>
 	public void Die ()
 	{
 		// Reload the complete chamber, not just the player. This resets opened doors,
@@ -248,6 +272,9 @@ public class Player : MonoBehaviour
 	}
 
 	//This is called when the player lands on the flag.
+	/// <summary>
+	/// Record completion, unlock the next internal level, play victory effects, and schedule the win overlay.
+	/// </summary>
 	public void Win ()
 	{
 		ShiftLockAudio.PlayVictory();
@@ -272,6 +299,9 @@ public class Player : MonoBehaviour
 	//This is called once the player completes a level.
 	//It waits a few seconds before displaying the win screen - allowing the player to either
 	//go to the next level or go to the menu.
+	/// <summary>
+	/// Wait briefly for victory effects before displaying the completion overlay.
+	/// </summary>
 	IEnumerator WinTimer ()
 	{
 		yield return new WaitForSeconds(2);
@@ -279,6 +309,9 @@ public class Player : MonoBehaviour
 	}
 
 	//This is called once the player moves. This is the movement animation.
+	/// <summary>
+	/// Animate one manual grid step, then check gravity and tile interactions.
+	/// </summary>
 	IEnumerator Move ()
 	{
 		ShiftLockAudio.PlayMove();
@@ -296,6 +329,9 @@ public class Player : MonoBehaviour
 
 	//This is called when the player falls.
 	//"pos" is the position where the player will to.
+	/// <summary>
+	/// Animate a gravity-driven landing and resolve tile interactions or spike death.
+	/// </summary>
 	IEnumerator Fall (Vector3 pos)
 	{
 		while(transform.position != pos){
@@ -314,6 +350,9 @@ public class Player : MonoBehaviour
 
 	//This is called when the player falls off the level.
 	//"pos" is the position where the player will fall to.
+	/// <summary>
+	/// Animate falling into the void and fading out before death.
+	/// </summary>
 	IEnumerator DeathFall (Vector3 pos)
 	{
 		//Since the player is falling to their death, they will fade away as they fall, just before dying.

@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Caches reusable tile prefabs from Resources. Switches and doors reuse the block prefab and receive different runtime-generated sprites.
+/// </summary>
 public class Pool : MonoBehaviour 
 {
 	//This class loads in the prefabs used when loading levels.
@@ -12,6 +15,9 @@ public class Pool : MonoBehaviour
 	public static GameObject spikeTile;
 	public static GameObject endFlagTile;
 
+	/// <summary>
+	/// Initialize cached prefabs or the persistent audio source and generated sound clips.
+	/// </summary>
 	void Awake ()
 	{
 		//Loading tiles in from the resources folder.
@@ -22,6 +28,9 @@ public class Pool : MonoBehaviour
 	}
 
 	//Returns a tile prefab relevant to its ID ("type").
+	/// <summary>
+	/// Return the prefab matching the numeric tile ID, or null if unsupported.
+	/// </summary>
 	public static GameObject GetTile (int type)
 	{
 		switch(type){

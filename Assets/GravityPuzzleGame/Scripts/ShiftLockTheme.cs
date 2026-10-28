@@ -4,6 +4,9 @@ using UnityEngine.UI;
 using TMPro;
 
 // Runtime-generated pixel-art theme for SHIFT//LOCK. No external art dependencies.
+/// <summary>
+/// Generates cached sci-fi pixel-art sprites and applies a consistent navy/cyan visual palette to tiles, menus, buttons, and completion screens.
+/// </summary>
 public static class ShiftLockTheme
 {
     public static readonly Color Background = new Color(0.018f, 0.032f, 0.060f, 1f);
@@ -21,6 +24,9 @@ public static class ShiftLockTheme
     static float activeArtInset = 0.10f;
     static float ActiveArtSpan { get { return 1f - (activeArtInset * 2f); } }
 
+    /// <summary>
+    /// Set the camera's solid dark navy background.
+    /// </summary>
     public static void ApplyCamera(Camera camera)
     {
         if (camera == null) return;
@@ -28,6 +34,9 @@ public static class ShiftLockTheme
         camera.backgroundColor = Background;
     }
 
+    /// <summary>
+    /// Replace a tile renderer's original sprite with cached generated artwork.
+    /// </summary>
     public static void ApplyTile(GameObject tileObject, int tileId)
     {
         if (tileObject == null) return;
@@ -39,6 +48,9 @@ public static class ShiftLockTheme
         renderer.color = Color.white;
     }
 
+    /// <summary>
+    /// Create or reuse procedural art while preserving source sprite pivot and pixels-per-unit.
+    /// </summary>
     public static Sprite CreateTileSprite(int tileId, Sprite referenceSprite)
     {
         if (referenceSprite == null) return null;
@@ -93,6 +105,9 @@ public static class ShiftLockTheme
         return sprite;
     }
 
+    /// <summary>
+    /// Draw a metallic wall panel.
+    /// </summary>
     static void DrawBlock(Texture2D t)
     {
         FillRect(t, 0.03f, 0.03f, 0.97f, 0.97f, Background);
@@ -109,6 +124,9 @@ public static class ShiftLockTheme
         FillRect(t, 0.43f, 0.34f, 0.57f, 0.39f, SteelLight);
     }
 
+    /// <summary>
+    /// Draw the cyan player core.
+    /// </summary>
     static void DrawPlayer(Texture2D t)
     {
         FillRect(t, 0.12f, 0.12f, 0.88f, 0.88f, Accent);
@@ -120,6 +138,9 @@ public static class ShiftLockTheme
         FillRect(t, 0.25f, 0.23f, 0.75f, 0.29f, Accent);
     }
 
+    /// <summary>
+    /// Draw the upward-pointing hazard spike.
+    /// </summary>
     static void DrawSpike(Texture2D t)
     {
         // Draw a steel spike with a red warning core, rather than a flame-shaped hazard.
@@ -129,6 +150,9 @@ public static class ShiftLockTheme
         FillRect(t, 0.34f, 0.19f, 0.66f, 0.25f, Amber);
     }
 
+    /// <summary>
+    /// Draw the green exit flag and its pole.
+    /// </summary>
     static void DrawExit(Texture2D t)
     {
         // Extend the post almost the full tile height, keeping the flag silhouette recognizable.
@@ -140,6 +164,9 @@ public static class ShiftLockTheme
         FillRect(t, 0.11f, 0.04f, 0.43f, 0.12f, Steel);
     }
 
+    /// <summary>
+    /// Draw a cyan inactive or green activated gravity switch.
+    /// </summary>
     static void DrawSwitch(Texture2D t, bool activated)
     {
         Color glow = activated ? Exit : Accent;
@@ -153,6 +180,9 @@ public static class ShiftLockTheme
         FillRect(t, 0.76f, 0.44f, 0.88f, 0.56f, Text);
     }
 
+    /// <summary>
+    /// Draw a red security door.
+    /// </summary>
     static void DrawDoor(Texture2D t)
     {
         FillRect(t, 0.05f, 0.03f, 0.95f, 0.97f, Background);
@@ -166,11 +196,17 @@ public static class ShiftLockTheme
     }
 
     // Scale drawing coordinates into the selected tile type's safe visible footprint.
+    /// <summary>
+    /// Map normalized drawing coordinates into the current sprite's safe art footprint.
+    /// </summary>
     static float Inset(float value)
     {
         return activeArtInset + value * ActiveArtSpan;
     }
 
+    /// <summary>
+    /// Draw a filled pixel rectangle into a texture.
+    /// </summary>
     static void FillRect(Texture2D t, float left, float bottom, float right, float top, Color color)
     {
         int x0 = Mathf.Clamp(Mathf.FloorToInt(Inset(left) * t.width), 0, t.width - 1);
@@ -182,6 +218,9 @@ public static class ShiftLockTheme
                 t.SetPixel(x, y, color);
     }
 
+    /// <summary>
+    /// Draw a filled pixel circle into a texture.
+    /// </summary>
     static void FillCircle(Texture2D t, float centerX, float centerY, float radius, Color color)
     {
         float cx = Inset(centerX);
@@ -202,6 +241,9 @@ public static class ShiftLockTheme
         }
     }
 
+    /// <summary>
+    /// Draw an upward-pointing pixel triangle.
+    /// </summary>
     static void DrawTriangle(Texture2D t, float left, float bottom, float right, float top, Color color)
     {
         left = Inset(left);
@@ -225,6 +267,9 @@ public static class ShiftLockTheme
         }
     }
 
+    /// <summary>
+    /// Apply readable color, weight, and outline to TextMeshPro labels.
+    /// </summary>
     public static void StyleText(TMP_Text text, Color color, bool bold)
     {
         if (text == null) return;
@@ -235,6 +280,9 @@ public static class ShiftLockTheme
         text.outlineWidth = 0.16f;
     }
 
+    /// <summary>
+    /// Apply the sci-fi button colors, interaction states, outlines, and labels.
+    /// </summary>
     public static void StyleButton(Button button)
     {
         if (button == null) return;
@@ -266,6 +314,9 @@ public static class ShiftLockTheme
         }
     }
 
+    /// <summary>
+    /// Style a menu page, including TextMeshPro and legacy UI.Text headings.
+    /// </summary>
     public static void StylePage(GameObject root, bool mainMenu)
     {
         if (root == null) return;
@@ -330,6 +381,9 @@ public static class ShiftLockTheme
         }
     }
 
+    /// <summary>
+    /// Style a completion panel and its nested image backgrounds.
+    /// </summary>
     public static void StylePanel(GameObject root)
     {
         if (root == null) return;

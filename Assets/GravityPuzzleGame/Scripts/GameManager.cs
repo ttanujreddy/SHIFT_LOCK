@@ -2,6 +2,9 @@
 using System.Collections;
 using System.IO;
 
+/// <summary>
+/// Owns chamber loading, the 20x20 tile grid, gravity orientation, per-level shift budgets, and switch-controlled doors. The original campaign uses internal level IDs 10-12.
+/// </summary>
 public class GameManager : MonoBehaviour 
 {
 	public const int FirstCustomLevelId = 10;
@@ -27,6 +30,9 @@ public class GameManager : MonoBehaviour
 	public CameraController cameraController;			//The camera controller class.
 	public GameUI ui;									//The game ui class.
 
+	/// <summary>
+	/// Initialize scene-specific state, visual styling, audio, and/or level data.
+	/// </summary>
 	void Start ()
 	{
 		ShiftLockAudio.EnsureExists();
@@ -50,6 +56,9 @@ public class GameManager : MonoBehaviour
 
 	//This function loads the level. The level it loads is based on what the levelId is.
 	//It reads the level text file and builds the level based on that.
+	/// <summary>
+	/// Read the selected Level{ID}.txt asset, validate its records, instantiate themed tiles, and initialize the grid, camera, and HUD.
+	/// </summary>
 	public void LoadLevel ()
 	{
 		TextAsset levelAsset = Resources.Load<TextAsset>("Levels/Level" + levelId);
@@ -181,6 +190,9 @@ public class GameManager : MonoBehaviour
 	}
 
 	// Starts each chamber/retry with its full gravity-shift allowance.
+	/// <summary>
+	/// Restore the current chamber's full shift allowance and update the counter.
+	/// </summary>
 	public void ResetGravityShiftBudget()
 	{
 		gravityShiftsRemaining = Mathf.Max(0, maxGravityShifts);
@@ -189,6 +201,9 @@ public class GameManager : MonoBehaviour
 	}
 
 	// Player-initiated gravity changes consume a shift. System resets use FlipGravity directly.
+	/// <summary>
+	/// Apply a player-requested gravity change only when the direction changes and shifts remain. A successful change consumes exactly one shift.
+	/// </summary>
 	public bool TryFlipGravity(GravityDirection dir)
 	{
 		if (dir == gravityDirection || gravityShiftsRemaining <= 0)
@@ -207,6 +222,9 @@ public class GameManager : MonoBehaviour
 	}
 
 	// A gravity switch opens every locked door in the current chamber.
+	/// <summary>
+	/// Activate the chamber's switch once, remove every locked door, and replace the switch's inactive sprite with its active appearance.
+	/// </summary>
 	public void ActivateDoors()
 	{
 		if (doorsOpened || grid == null)
@@ -242,12 +260,18 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Return whether a tile stops falling: solid blocks and unopened doors.
+	/// </summary>
 	bool IsSolidTile(TileType type)
 	{
 		return type == TileType.Block || type == TileType.LockedDoor;
 	}
 
 	//Can the player move in the direction they want to?
+	/// <summary>
+	/// Check whether the neighboring tile permits a manual movement step.
+	/// </summary>
 	public bool PlayerCanMove (Vector3 playerPos, Vector3 dir)
 	{
 		int posX = (int)(playerPos.x / 9);
@@ -265,6 +289,9 @@ public class GameManager : MonoBehaviour
 	}
 
 	//Returns the tile type in the direction sent from the player's position.
+	/// <summary>
+	/// Read the tile type in the neighboring grid cell.
+	/// </summary>
 	public TileType GetTileType (Vector3 playerPos, Vector3 dir)
 	{
 		int posX = (int)(playerPos.x / 9);
@@ -278,6 +305,9 @@ public class GameManager : MonoBehaviour
 	}
 
 	//Returns the tile that the player is ontop of.
+	/// <summary>
+	/// Search in the gravity direction for the landing cell, recording spikes crossed along the way.
+	/// </summary>
 	public Tile GetFloor (Vector3 playerPos, Vector3 dir)
 	{
 		int posX = (int)(playerPos.x / 9);
@@ -311,6 +341,9 @@ public class GameManager : MonoBehaviour
 	}
 
 	//Returns true if there is a floor for the player to fall onto.
+	/// <summary>
+	/// Determine whether a solid landing surface exists along gravity.
+	/// </summary>
 	public bool HasFloor (Vector3 playerPos, Vector3 dir)
 	{
 		int posX = (int)(playerPos.x / 9);
@@ -342,6 +375,9 @@ public class GameManager : MonoBehaviour
 	}
 
 	//Flips the gravity to the requested direction.
+	/// <summary>
+	/// Update gravity orientation, camera and particle rotation, player falling, and compass animation. System-driven calls do not spend shifts.
+	/// </summary>
 	public void FlipGravity (GravityDirection dir)
 	{
 		switch(dir){

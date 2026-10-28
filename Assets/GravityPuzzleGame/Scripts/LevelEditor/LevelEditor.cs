@@ -7,6 +7,9 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Edits text-based levels on a bounded grid, including switch/door tiles, spike rotation, and saving without overwriting existing files.
+/// </summary>
 public class LevelEditor : MonoBehaviour 
 {
 	[System.NonSerialized]
@@ -30,12 +33,18 @@ public class LevelEditor : MonoBehaviour
 	//UI
 	public TMP_Text saveText;			//The text on the save button, displaying what level it will be saved as.
 
+	/// <summary>
+	/// Initialize scene-specific state, visual styling, audio, and/or level data.
+	/// </summary>
 	void Start ()
 	{
 		NewLevel();
 	}
 
 	//Sets up the grid for a new level.
+	/// <summary>
+	/// Initialize a blank 20x20 editor grid and select the next available level filename.
+	/// </summary>
 	public void NewLevel ()
 	{
 		grid = new Tile[20,20];
@@ -57,6 +66,9 @@ public class LevelEditor : MonoBehaviour
 
 	// Find the first missing sequential Level<number>.txt ID. Counting every TextAsset
 	// in Resources/Levels can inflate the number when unrelated text assets are present.
+	/// <summary>
+	/// Find the first unused sequential Level{ID} filename among imported and on-disk assets.
+	/// </summary>
 	int GetNextLevelId()
 	{
 		HashSet<int> usedIds = new HashSet<int>();
@@ -86,6 +98,9 @@ public class LevelEditor : MonoBehaviour
 		return nextId;
 	}
 
+	/// <summary>
+	/// Parse a nonnegative numeric ID from a Level{number} asset name.
+	/// </summary>
 	bool TryParseLevelId(string assetName, out int id)
 	{
 		id = -1;
@@ -99,6 +114,9 @@ public class LevelEditor : MonoBehaviour
 
 	//Called when one of the tile buttons get pressed.
 	//It sends over "selection" which will then be the selected tile to place down.
+	/// <summary>
+	/// Choose a tile type and update the themed placement preview.
+	/// </summary>
 	public void SelectTile (int selection)
 	{
 		GameObject prefab = GetTile(selection);
@@ -112,6 +130,9 @@ public class LevelEditor : MonoBehaviour
 		ghostTile.color = new Color(1f, 1f, 1f, 0.5f);
 	}
 
+	/// <summary>
+	/// Convert mouse coordinates to grid cells and process placement, deletion, tile hotkeys, rotation, and scene navigation.
+	/// </summary>
 	void Update ()
 	{
 		if (Camera.main == null || ghostTile == null || grid == null)
@@ -156,6 +177,9 @@ public class LevelEditor : MonoBehaviour
 			: new Color(1f, 0.12f, 0.10f, 0.5f);
 	}
 
+	/// <summary>
+	/// Validate coordinates before indexing the editor grid.
+	/// </summary>
 	bool IsValidGridIndex(int x, int y)
 	{
 		return grid != null &&
@@ -164,6 +188,9 @@ public class LevelEditor : MonoBehaviour
 	}
 
 	// Delete only a tile inside the grid. Clear its reference after destroying it.
+	/// <summary>
+	/// Remove an existing tile from a valid cell and clear its stored object reference.
+	/// </summary>
 	void DeleteTile (int x, int y)
 	{
 		if (!IsValidGridIndex(x, y))
@@ -181,6 +208,9 @@ public class LevelEditor : MonoBehaviour
 	}
 
 	// Place only inside the grid; invalid mouse positions never index the array.
+	/// <summary>
+	/// Instantiate a selected prefab only in a valid empty cell, then apply procedural art.
+	/// </summary>
 	void PlaceTile (int x, int y)
 	{
 		if (!IsValidGridIndex(x, y))
@@ -198,6 +228,9 @@ public class LevelEditor : MonoBehaviour
 	}
 
 	//Retuns a tile prefab based on the given ID number.
+	/// <summary>
+	/// Map tile IDs to editor prefabs; switch and door tiles reuse the block prefab.
+	/// </summary>
 	GameObject GetTile (int selected)
 	{
 		switch(selected){
@@ -220,6 +253,9 @@ public class LevelEditor : MonoBehaviour
 	//Saves the level to a .txt file and saves it in the resources folder.
 	//It converts the tiles, their position and their rotation to an easy to read format for when they
 	//are required to be loaded up.
+	/// <summary>
+	/// Serialize nonempty cells as level text, including spike rotations, without overwriting an existing file.
+	/// </summary>
 	public void SaveLevel ()
 	{
 		string t = "";

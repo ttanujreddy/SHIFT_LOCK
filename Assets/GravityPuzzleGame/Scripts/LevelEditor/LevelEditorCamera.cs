@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Provides keyboard panning and bounded mouse-wheel zoom for the level editor.
+/// </summary>
 public class LevelEditorCamera : MonoBehaviour 
 {
 	public Camera cam;		//The camera class.
@@ -8,6 +11,9 @@ public class LevelEditorCamera : MonoBehaviour
 	public int minZoom;		//The minimum amount that the camera can zoom in.
 	public int maxZoom;		//The maximum amount that the camera can zoom out.
 
+	/// <summary>
+	/// Convert mouse coordinates to grid cells and process placement, deletion, tile hotkeys, rotation, and scene navigation.
+	/// </summary>
 	void Update ()
 	{
 		//Moves the camera based on horizontal and vertical inputs.

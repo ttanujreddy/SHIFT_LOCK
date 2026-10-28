@@ -3,6 +3,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // Small synthesized one-shot effects for SHIFT//LOCK. No music and no imported audio assets.
+/// <summary>
+/// Persistent procedural audio system. Generates and caches short one-shot effects rather than using background music or imported sound files.
+/// </summary>
 public sealed class ShiftLockAudio : MonoBehaviour
 {
     const int SampleRate = 22050;
@@ -17,6 +20,9 @@ public sealed class ShiftLockAudio : MonoBehaviour
     AudioClip victory;
     readonly HashSet<UnityEngine.EntityId> wiredButtonIds = new HashSet<UnityEngine.EntityId>();
 
+    /// <summary>
+    /// Create the persistent audio manager if no instance exists.
+    /// </summary>
     public static void EnsureExists()
     {
         if (instance != null) return;
@@ -24,6 +30,9 @@ public sealed class ShiftLockAudio : MonoBehaviour
         instance = audioObject.AddComponent<ShiftLockAudio>();
     }
 
+    /// <summary>
+    /// Initialize cached prefabs or the persistent audio source and generated sound clips.
+    /// </summary>
     void Awake()
     {
         if (instance != null && instance != this)
@@ -50,6 +59,9 @@ public sealed class ShiftLockAudio : MonoBehaviour
 
     enum WaveKind { Click, Move, Shift, Switch, Death, Victory }
 
+    /// <summary>
+    /// Synthesize mono PCM samples for a named sound effect and cache them in an AudioClip.
+    /// </summary>
     AudioClip MakeClip(string clipName, float duration, WaveKind kind)
     {
         int count = Mathf.CeilToInt(SampleRate * duration);
@@ -125,19 +137,43 @@ public sealed class ShiftLockAudio : MonoBehaviour
         return clip;
     }
 
+    /// <summary>
+    /// Play a cached sound once at the requested relative volume.
+    /// </summary>
     void Play(AudioClip clip, float volume)
     {
         if (source == null || clip == null) return;
         source.PlayOneShot(clip, volume);
     }
 
+    /// <summary>
+    /// Play the short menu-click effect.
+    /// </summary>
     public static void PlayUiClick() { if (instance != null) instance.Play(instance.uiClick, 0.48f); }
+    /// <summary>
+    /// Play a quiet movement tick.
+    /// </summary>
     public static void PlayMove() { if (instance != null) instance.Play(instance.moveTick, 0.30f); }
+    /// <summary>
+    /// Play the rising gravity-change sweep.
+    /// </summary>
     public static void PlayGravityShift() { if (instance != null) instance.Play(instance.gravityShift, 0.72f); }
+    /// <summary>
+    /// Play the switch activation chime once when triggered by gameplay.
+    /// </summary>
     public static void PlaySwitch() { if (instance != null) instance.Play(instance.switchActivate, 0.82f); }
+    /// <summary>
+    /// Play the descending failure cue.
+    /// </summary>
     public static void PlayDeath() { if (instance != null) instance.Play(instance.death, 1.0f); }
+    /// <summary>
+    /// Play the short completion arpeggio.
+    /// </summary>
     public static void PlayVictory() { if (instance != null) instance.Play(instance.victory, 1.0f); }
 
+    /// <summary>
+    /// Attach click sounds to all buttons under a UI root, including inactive children.
+    /// </summary>
     public static void AddClickSounds(GameObject root)
     {
         if (root == null) return;
@@ -145,6 +181,9 @@ public sealed class ShiftLockAudio : MonoBehaviour
             AddClickSound(button);
     }
 
+    /// <summary>
+    /// Register a click listener on one button without adding duplicates.
+    /// </summary>
     public static void AddClickSound(Button button)
     {
         if (button == null || instance == null) return;
