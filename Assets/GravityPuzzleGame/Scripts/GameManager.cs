@@ -12,8 +12,8 @@ public class GameManager : MonoBehaviour
 	[Min(0)] public int maxGravityShifts = 5; // Fallback for levels without an explicit budget.
 	[Tooltip("Element 0 is Level0, element 1 is Level1, and so on. Set each level's maximum gravity shifts here.")]
 	public int[] gravityShiftsPerLevel = { 5, 5, 5, 5, 5, 5, 6, 7, 8, 9, 2, 3, 4 };
-	[Tooltip("Budget used by levels that do not yet have an entry in Gravity Shifts Per Level.")]
-	[Min(0)] public int defaultShiftBudgetForNewLevels = 4;
+	// New levels missing from an older scene's serialized array default to four shifts.
+	private const int DefaultShiftBudgetForNewLevels = 4;
 	[System.NonSerialized] public int gravityShiftsRemaining;
 	[System.NonSerialized]
 	public Tile[,] grid;								//Runtime-only tile grid.
@@ -57,8 +57,8 @@ public class GameManager : MonoBehaviour
 		}
 		else
 		{
-			// Older scenes may contain a serialized budget array that predates newly added levels.
-			maxGravityShifts = Mathf.Max(0, defaultShiftBudgetForNewLevels);
+			// Do not use a serialized fallback field here: older scenes may retain its stale value.
+			maxGravityShifts = DefaultShiftBudgetForNewLevels;
 		}
 
 		ResetGravityShiftBudget();
