@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
 	[System.NonSerialized] public int gravityShiftsRemaining;
 	[System.NonSerialized]
 	public Tile[,] grid;								//Runtime-only tile grid.
+	[System.NonSerialized] private bool doorsOpened;
 	public Vector2 playerSpawn;							//The position where the player will spawn.
 	public GravityDirection gravityDirection;			//The current direction of gravity.
 	public ParticleSystem levelCompleteParticleEffect;	//The particle effect that will be played once the player completes a level.
@@ -45,6 +46,7 @@ public class GameManager : MonoBehaviour
 		}
 
 		ResetGravityShiftBudget();
+		doorsOpened = false;
 		grid = new Tile[20, 20];
 		string[] lines = levelAsset.text.Split('\n');
 		ui.levelText.text = "LEVEL " + levelId;
@@ -84,7 +86,7 @@ public class GameManager : MonoBehaviour
 			}
 
 			// Coordinates are shifted by one when mapped into the 20x20 runtime grid.
-			if (tileX < 0 || tileX >= 19 || tileY < 0 || tileY >= 19 || tileId < 0 || tileId > 3)
+			if (tileX < 0 || tileX >= 19 || tileY < 0 || tileY >= 19 || tileId < 0 || tileId > 5)
 			{
 				Debug.LogWarning("Skipping out-of-range tile record in level " + levelId + ": " + rawLine);
 				continue;
@@ -137,6 +139,14 @@ public class GameManager : MonoBehaviour
 			if (tileId == 3)
 				levelCompleteParticleEffect.transform.position = tileObject.transform.position;
 
+			// Temporary switch/door visuals; the planned art pass will replace these.
+			if (tileId == 4 || tileId == 5)
+			{
+				SpriteRenderer renderer = tileObject.GetComponent<SpriteRenderer>();
+				if (renderer != null)
+					renderer.color = tileId == 4 ? new Color(0.15f, 0.85f, 1f, 1f) : new Color(1f, 0.28f, 0.18f, 1f);
+			}
+
 			grid[tileX + 1, tileY + 1] = gridTile;
 		}
 
@@ -169,6 +179,43 @@ public class GameManager : MonoBehaviour
 		return true;
 	}
 
+	// A gravity switch opens every locked door in the current chamber.
+	public void ActivateDoors()
+	{
+		if (doorsOpened || grid == null)
+			return;
+
+		doorsOpened = true;
+		for (int x = 0; x < grid.GetLength(0); x++)
+		{
+			for (int y = 0; y < grid.GetLength(1); y++)
+			{
+				Tile cell = grid[x, y];
+				if (cell == null)
+					continue;
+
+				if (cell.type == TileType.LockedDoor)
+				{
+					if (cell.tile != null)
+						Destroy(cell.tile);
+					cell.tile = null;
+					cell.type = TileType.Empty;
+				}
+				else if (cell.type == TileType.GravitySwitch && cell.tile != null)
+				{
+					SpriteRenderer renderer = cell.tile.GetComponent<SpriteRenderer>();
+					if (renderer != null)
+						renderer.color = new Color(0.25f, 1f, 0.45f, 1f);
+				}
+			}
+		}
+	}
+
+	bool IsSolidTile(TileType type)
+	{
+		return type == TileType.Block || type == TileType.LockedDoor;
+	}
+
 	//Can the player move in the direction they want to?
 	public bool PlayerCanMove (Vector3 playerPos, Vector3 dir)
 	{
@@ -179,7 +226,7 @@ public class GameManager : MonoBehaviour
 
 		Tile g = grid[(posX + dirX), (posY + dirY)];
 
-		if(g.type == TileType.Block || g.type == TileType.Spike){
+		if (g.type == TileType.Block || g.type == TileType.Spike || g.type == TileType.LockedDoor){
 			return false;
 		}else{
 			return true;
@@ -209,7 +256,7 @@ public class GameManager : MonoBehaviour
 
 		if(dirY == 0){
 			for(int x = 0; x < 20; x++){
-				if(grid[(posX + (dirX * x)), posY].type == TileType.Block){
+				if(IsSolidTile(grid[(posX + (dirX * x)), posY].type)){
 					return grid[(posX + (dirX * x) - dirX), posY];
 				}
 				if(grid[(posX + (dirX * x)), posY].type == TileType.Spike){
@@ -220,7 +267,7 @@ public class GameManager : MonoBehaviour
 
 		if(dirX == 0){
 			for(int y = 0; y < 20; y++){
-				if(grid[posX, (posY + (dirY * y))].type == TileType.Block){
+				if(IsSolidTile(grid[posX, (posY + (dirY * y))].type)){
 					return grid[posX, (posY + (dirY * y) - dirY)];
 				}
 				if(grid[posX, (posY + (dirY * y))].type == TileType.Spike){
@@ -243,7 +290,7 @@ public class GameManager : MonoBehaviour
 		if(dirY == 0){
 			for(int x = 0; x < 20; x++){
 				if(posX + (dirX * x) > 0 && posX + (dirX * x) < 20){
-					if(grid[(posX + (dirX * x)), posY].type == TileType.Block){
+					if(IsSolidTile(grid[(posX + (dirX * x)), posY].type)){
 						return true;
 					}
 				}
@@ -253,7 +300,7 @@ public class GameManager : MonoBehaviour
 		if(dirX == 0){
 			for(int y = 0; y < 20; y++){
 				if(posY + (dirY * y) > 0 && posY + (dirY * y) < 20){
-					if(grid[posX, (posY + (dirY * y))].type == TileType.Block){
+					if(IsSolidTile(grid[posX, (posY + (dirY * y))].type)){
 						return true;
 					}
 				}
@@ -299,4 +346,4 @@ public class GameManager : MonoBehaviour
 }
 
 public enum GravityDirection {North, South, East, West}
-public enum TileType {Empty, Block, Player, Spike, EndFlag}
+public enum TileType {Empty, Block, Player, Spike, EndFlag, GravitySwitch, LockedDoor}

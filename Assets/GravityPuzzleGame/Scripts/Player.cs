@@ -201,7 +201,7 @@ public class Player : MonoBehaviour
 		TileType t = manager.GetTileType(transform.position, dir);
 
 		//If that tile is not a block (meaning it's air) then the player will fall.
-		if(t != TileType.Block){
+		if(t != TileType.Block && t != TileType.LockedDoor){
 			
 			//We then check to see if the player does fall, will they land on a floor?
 			if(manager.HasFloor(transform.position, dir)){
@@ -231,9 +231,11 @@ public class Player : MonoBehaviour
 	{
 		TileType t = manager.grid[(int)(transform.position.x / 9), (int)(transform.position.y / 9)].type;
 
-		if(t == TileType.EndFlag && !fallingInSpikes){
+		if (t == TileType.GravitySwitch)
+			manager.ActivateDoors();
+
+		if (t == TileType.EndFlag && !fallingInSpikes)
 			Win();
-		}
 	}
 
 	//This is called whenever the player falls off the map or falls into a spike.

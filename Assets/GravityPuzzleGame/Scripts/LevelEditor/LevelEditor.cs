@@ -101,8 +101,15 @@ public class LevelEditor : MonoBehaviour
 	//It sends over "selection" which will then be the selected tile to place down.
 	public void SelectTile (int selection)
 	{
+		GameObject prefab = GetTile(selection);
+		if (prefab == null || ghostTile == null)
+			return;
+
 		selectedTile = selection;
-		ghostTile.sprite = GetTile(selection).GetComponent<SpriteRenderer>().sprite;
+		SpriteRenderer prefabRenderer = prefab.GetComponent<SpriteRenderer>();
+		if (prefabRenderer != null)
+			ghostTile.sprite = prefabRenderer.sprite;
+		ghostTile.color = GetEditorTileColor(selection, 0.5f);
 	}
 
 	void Update ()
@@ -128,6 +135,12 @@ public class LevelEditor : MonoBehaviour
 				DeleteTile(cellX, cellY);
 		}
 
+		// Press 5 for a gravity switch and 6 for a locked door.
+		if (Input.GetKeyDown(KeyCode.Alpha5))
+			SelectTile(4);
+		if (Input.GetKeyDown(KeyCode.Alpha6))
+			SelectTile(5);
+
 		if (Input.GetKeyDown(KeyCode.R))
 		{
 			rotation = (rotation + 1) % 5;
@@ -139,7 +152,7 @@ public class LevelEditor : MonoBehaviour
 
 		ghostTile.transform.position = mousePos;
 		ghostTile.color = inBounds
-			? new Color(1f, 1f, 1f, 0.5f)
+			? GetEditorTileColor(selectedTile, 0.5f)
 			: new Color(1f, 0f, 0f, 0.5f);
 	}
 
@@ -179,6 +192,12 @@ public class LevelEditor : MonoBehaviour
 
 		Vector3 tilePosition = new Vector3(x * 9 + 4, y * 9 + 4, 0);
 		GameObject placedTile = Instantiate(prefab, tilePosition, Quaternion.Euler(new Vector3(0, 0, -90 * rotation)));
+		if (selectedTile == 4 || selectedTile == 5)
+		{
+			SpriteRenderer renderer = placedTile.GetComponent<SpriteRenderer>();
+			if (renderer != null)
+				renderer.color = GetEditorTileColor(selectedTile, 1f);
+		}
 		grid[x, y].type = (TileType)(selectedTile + 1);
 		grid[x, y].tile = placedTile;
 	}
@@ -195,9 +214,21 @@ public class LevelEditor : MonoBehaviour
 				return spikeTile;
 			case 3:
 				return endFlagTile;
+			case 4: // Gravity switch placeholder
+			case 5: // Locked door placeholder
+				return blockTile;
 		}
 
 		return null;
+	}
+
+	Color GetEditorTileColor(int tileSelection, float alpha)
+	{
+		if (tileSelection == 4)
+			return new Color(0.15f, 0.85f, 1f, alpha);
+		if (tileSelection == 5)
+			return new Color(1f, 0.28f, 0.18f, alpha);
+		return new Color(1f, 1f, 1f, alpha);
 	}
 
 	//Saves the level to a .txt file and saves it in the resources folder.

@@ -33,6 +33,10 @@ public class Pool : MonoBehaviour
 				return spikeTile;
 			case 3:
 				return endFlagTile;
+			// Temporary art: switch/door tiles reuse the block prefab with distinct colors.
+			case 4:
+			case 5:
+				return blockTile;
 		}
 
 		return null;
