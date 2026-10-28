@@ -4,6 +4,7 @@ using System.IO;
 
 public class GameManager : MonoBehaviour 
 {
+	public const int FirstCustomLevelId = 10;
 	//Level
 	public int levelId;									//The current level.
 	public int levels;									//The total amount of levels there are.
@@ -65,8 +66,15 @@ public class GameManager : MonoBehaviour
 		doorsOpened = false;
 		grid = new Tile[20, 20];
 		string[] lines = levelAsset.text.Split('\n');
-		ui.levelText.text = "LEVEL " + levelId;
-		levels = Resources.LoadAll<TextAsset>("Levels").Length;
+		int customLevelCount = 0;
+		while (Resources.Load<TextAsset>("Levels/Level" + (FirstCustomLevelId + customLevelCount)) != null)
+			customLevelCount++;
+
+		// Keep internal IDs 10-12 for budget/progression data, but show the custom campaign as Levels 1-3.
+		ui.levelText.text = levelId >= FirstCustomLevelId
+			? "LEVEL " + (levelId - FirstCustomLevelId + 1) + " / " + customLevelCount
+			: "LEVEL " + levelId;
+		levels = FirstCustomLevelId + customLevelCount;
 
 		// Initialize every cell as empty before applying the level records.
 		for (int x = 0; x < 20; x++)
