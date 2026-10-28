@@ -16,6 +16,20 @@ public class GameUI : MonoBehaviour
 
 	private TMP_Text shiftCounterText;
 
+	void Start()
+	{
+		ShiftLockTheme.StyleText(levelText, ShiftLockTheme.Accent, true);
+		if (levelText != null) levelText.fontSize = 28f;
+		ShiftLockTheme.StyleText(tutorialText, ShiftLockTheme.Text, false);
+		if (compass != null)
+		{
+			foreach (Graphic graphic in compass.GetComponentsInChildren<Graphic>(true))
+				graphic.color = ShiftLockTheme.Accent;
+		}
+		ShiftLockTheme.StylePanel(winScreen);
+		ShiftLockTheme.ApplyCamera(Camera.main);
+	}
+
 	// Creates a HUD label at runtime so the existing template scene needs no manual re-wiring.
 	public void UpdateShiftCounter(int remaining, int total)
 	{
@@ -37,21 +51,35 @@ public class GameUI : MonoBehaviour
 			return;
 		}
 
+		// Draw the counter on a dark panel below the camera toggle.
+		GameObject panelObject = new GameObject("ShiftCounterPanel", typeof(RectTransform), typeof(Image), typeof(Outline));
+		RectTransform panelRect = panelObject.GetComponent<RectTransform>();
+		panelRect.SetParent(canvas.transform, false);
+		panelRect.anchorMin = new Vector2(0, 1);
+		panelRect.anchorMax = new Vector2(0, 1);
+		panelRect.pivot = new Vector2(0, 1);
+		panelRect.anchoredPosition = new Vector2(8, -92);
+		panelRect.sizeDelta = new Vector2(250, 42);
+		panelObject.GetComponent<Image>().color = ShiftLockTheme.Panel;
+		Outline outline = panelObject.GetComponent<Outline>();
+		outline.effectColor = new Color(ShiftLockTheme.Accent.r, ShiftLockTheme.Accent.g, ShiftLockTheme.Accent.b, 0.55f);
+		outline.effectDistance = new Vector2(1f, -1f);
+
 		GameObject counterObject = new GameObject("ShiftCounter", typeof(RectTransform), typeof(TextMeshProUGUI));
 		RectTransform rect = counterObject.GetComponent<RectTransform>();
 		rect.SetParent(canvas.transform, false);
 		rect.anchorMin = new Vector2(0, 1);
 		rect.anchorMax = new Vector2(0, 1);
 		rect.pivot = new Vector2(0, 1);
-		rect.anchoredPosition = new Vector2(18, -88);
-		rect.sizeDelta = new Vector2(300, 42);
+		rect.anchoredPosition = new Vector2(18, -97);
+		rect.sizeDelta = new Vector2(270, 36);
 
 		shiftCounterText = counterObject.GetComponent<TextMeshProUGUI>();
 		if (TMP_Settings.defaultFontAsset != null)
 			shiftCounterText.font = TMP_Settings.defaultFontAsset;
-		shiftCounterText.fontSize = 24;
+		shiftCounterText.fontSize = 22;
 		shiftCounterText.fontStyle = FontStyles.Bold;
-		shiftCounterText.color = new Color(0.08f, 0.08f, 0.08f, 1f);
+		shiftCounterText.color = ShiftLockTheme.Accent;
 		shiftCounterText.alignment = TextAlignmentOptions.TopLeft;
 		shiftCounterText.textWrappingMode = TextWrappingModes.NoWrap;
 		shiftCounterText.raycastTarget = false;
@@ -62,8 +90,11 @@ public class GameUI : MonoBehaviour
 	{
 		winScreen.SetActive(true);
 
-		if(manager.levels == manager.levelId + 1)
+		ShiftLockTheme.StylePanel(winScreen);
+		if (manager.levelId >= GameManager.FirstCustomLevelId + 2)
 			nextLevelButton.SetActive(false);
+		else
+			nextLevelButton.SetActive(true);
 	}
 
 	//Called when the player presses the "Next Level" button on the win screen.
@@ -85,22 +116,26 @@ public class GameUI : MonoBehaviour
 	//You can change or remove this to match your levels.
 	public void SetTutorial ()
 	{
-		if(manager.levelId < 3){
-			switch(manager.levelId){
-				case 0:{
-					tutorialText.text = "Use the <b>ARROW KEYS</b> to move the player.";
-					break;
-				}
-				case 1:{
-					tutorialText.text = "Change the direction of gravity with <b>WASD</b>.";
-					break;
-				}
-				case 2:{
-					tutorialText.text = "Watch out for the <b>SPIKES</b>!";
-					break;
-				}
+		if (manager.levelId >= GameManager.FirstCustomLevelId)
+		{
+			switch (manager.levelId)
+			{
+				case 10: tutorialText.text = "<b>POWER CYCLE</b>  // Touch the cyan switch to unlock the door."; break;
+				case 11: tutorialText.text = "<b>THE DANGEROUS SHORTCUT</b>  // Avoid the hazard. Reach the switch, then escape."; break;
+				case 12: tutorialText.text = "<b>FAIL-SAFE</b>  // One switch opens both security doors. Plan your route."; break;
+				default: tutorialText.text = "Use arrow keys to move. Use W/A/D to change gravity. Press R to restart."; break;
 			}
 		}
+		else if (manager.levelId < 3)
+		{
+			switch (manager.levelId)
+			{
+				case 0: tutorialText.text = "Use the <b>ARROW KEYS</b> to move the player."; break;
+				case 1: tutorialText.text = "Change gravity with <b>WASD</b>."; break;
+				case 2: tutorialText.text = "Watch out for the <b>SPIKES</b>!"; break;
+			}
+		}
+		ShiftLockTheme.StyleText(tutorialText, ShiftLockTheme.Text, false);
 	}
 
 	//Called whenever the player changes the gravity. 
